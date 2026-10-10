@@ -3,7 +3,8 @@
  * like the piezo buzzer of the Nokia phones of the 2000s.
  */
 import type { Melody } from '../core/melody';
-import { noteIndexAt, scheduleDuration, scheduleMelody } from './schedule';
+import { createBuzzer, scheduleMelodyOn, scheduleTone } from './buzzer';
+import { noteIndexAt, scheduleMelody } from './schedule';
 
 export interface PlayOptions {
   /** Called when the playing note changes (-1 when nothing plays). */
@@ -12,10 +13,8 @@ export interface PlayOptions {
   onEnd?: () => void;
 }
 
-/** Square waves are harsh: keep the master volume low. */
+/** Square waves are harsh: keep the live volume low. */
 const VOLUME = 0.15;
-/** Fade in/out of each note, to avoid clicks. */
-const RAMP_SECONDS = 0.003;
 /** Small delay before the first note, so scheduling never starts in the past. */
 const START_DELAY_SECONDS = 0.05;
 
@@ -48,19 +47,9 @@ export class MelodyPlayer {
 
     const schedule = scheduleMelody(melody);
     const t0 = context.currentTime + START_DELAY_SECONDS;
-    const end = t0 + scheduleDuration(schedule);
-
-    const { oscillator, gain } = createBuzzer(context, t0);
-    for (const note of schedule) {
-      if (note.frequency === null) continue;
-      scheduleTone(
-        oscillator,
-        gain,
-        note.frequency,
-        t0 + note.start,
-        note.soundDuration,
-      );
-    }
+    const buzzer = createBuzzer(context, t0);
+    const { oscillator, gain } = buzzer;
+    const end = scheduleMelodyOn(buzzer, schedule, t0, VOLUME);
 
     const playback: Playback = {
       oscillator,
@@ -99,7 +88,7 @@ export class MelodyPlayer {
     const context = await this.#ensureContext();
     const t0 = context.currentTime;
     const { oscillator, gain } = createBuzzer(context, t0);
-    scheduleTone(oscillator, gain, frequency, t0, seconds);
+    scheduleTone({ oscillator, gain }, frequency, t0, seconds, VOLUME);
     oscillator.onended = () => gain.disconnect();
     oscillator.start(t0);
     oscillator.stop(t0 + seconds);
@@ -134,38 +123,6 @@ export class MelodyPlayer {
     }
     return this.#context;
   }
-}
-
-/** A silent square-wave oscillator, ready to receive scheduled tones. */
-function createBuzzer(
-  context: AudioContext,
-  t0: number,
-): { oscillator: OscillatorNode; gain: GainNode } {
-  const gain = context.createGain();
-  gain.gain.setValueAtTime(0, t0);
-  gain.connect(context.destination);
-
-  const oscillator = context.createOscillator();
-  oscillator.type = 'square';
-  oscillator.connect(gain);
-  return { oscillator, gain };
-}
-
-/** Schedules one tone, with short fades to avoid clicks. */
-function scheduleTone(
-  oscillator: OscillatorNode,
-  gain: GainNode,
-  frequency: number,
-  start: number,
-  seconds: number,
-): void {
-  const stop = start + seconds;
-  const ramp = Math.min(RAMP_SECONDS, seconds / 4);
-  oscillator.frequency.setValueAtTime(frequency, start);
-  gain.gain.setValueAtTime(0, start);
-  gain.gain.linearRampToValueAtTime(VOLUME, start + ramp);
-  gain.gain.setValueAtTime(VOLUME, stop - ramp);
-  gain.gain.linearRampToValueAtTime(0, stop);
 }
 
 /**

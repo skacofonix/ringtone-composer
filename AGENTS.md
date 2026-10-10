@@ -49,8 +49,9 @@ src/
   audio/         # dépend de Web Audio API
     schedule.ts    # mélodie -> timeline (début, durée, fréquence), pur et testé
     player.ts      # lecture temps réel (oscillateur carré), aperçu d'une note
+    buzzer.ts      # oscillateur carré + enveloppes, commun à la lecture et à l'export
     render.ts      # rendu hors ligne -> PCM (OfflineAudioContext)
-    encoders/      # PCM -> WAV (maison), puis MP3 / M4R
+    encoders/      # PCM -> WAV (maison)
   catalog/       # sonneries classiques en RTTTL (données)
   ui/
     retro/         # Nokia 3310 : LCD pixelisé + clavier T9
@@ -63,7 +64,7 @@ docs/            # spécifications (RTTTL, notation Nokia…)
 
 **Règle d'or :** l'UI ne manipule jamais directement une chaîne RTTTL. Elle travaille sur le modèle `Melody` de `src/core`, et le RTTTL n'est qu'un format d'entrée/sortie. Toute logique non visuelle (navigation dans le clavier T9, changement d'octave, calcul de durée…) va dans `core/` et est testée.
 
-> L'arborescence ci-dessus est la cible. Pas encore écrits : `share.ts`, `render.ts`, `encoders/`, `catalog/`.
+> L'arborescence ci-dessus reflète le code actuel. Le catalogue ne contient que des œuvres du domaine public : ne pas y ajouter de thèmes de films, de séries ou de jeux encore protégés.
 >
 > `ui/retro/` contient aussi une police bitmap 5×7 (`font.ts`) et un rendu pur de l'écran 84×48 (`screen.ts`, testé) que `Lcd.svelte` se contente de peindre. `ui/shared/storage.ts` sauvegarde la mélodie (en RTTTL) et le mode dans `localStorage`. Mets cette section à jour quand la structure réelle évolue.
 >
@@ -110,8 +111,8 @@ Avant de considérer une tâche terminée, `npm run verify` doit passer. La CI G
 3. ✅ Lecteur audio (onde carrée)
 4. ✅ Mode moderne (piano)
 5. ✅ Mode rétro Nokia 3310 (LCD + T9), sauvegarde automatique
-6. Catalogue de classiques
-7. Partage par lien
-8. Export audio (WAV → MP3 → M4R) + guide « définir comme sonnerie »
+6. ✅ Catalogue de classiques (domaine public)
+7. ✅ Partage par lien (RTTTL dans le fragment `#rtttl=`)
+8. ✅ Export audio WAV + guide « définir comme sonnerie » (Android, iPhone via GarageBand). Plus tard, si besoin : MP3 ou M4R.
 9. Polyphonie (exploratoire)
 10. Plus tard : emballage Capacitor pour Android (bouton natif « Définir comme sonnerie », Play Store)

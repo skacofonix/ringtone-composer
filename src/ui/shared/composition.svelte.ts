@@ -66,6 +66,15 @@ export class Composition {
     });
   }
 
+  /**
+   * Plays a melody without loading it (catalog preview). The editor's
+   * playing state is not touched.
+   */
+  audition(melody: Melody, onEnd: () => void): void {
+    this.stop();
+    void this.#player.play(melody, { onEnd });
+  }
+
   stop(): void {
     this.#player.stop();
   }

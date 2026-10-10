@@ -1,8 +1,11 @@
 <script lang="ts">
+  import { serializeRtttl } from './core/rtttl';
+  import { melodyFromUrl } from './core/share';
   import ModernComposer from './ui/modern/ModernComposer.svelte';
   import RetroComposer from './ui/retro/RetroComposer.svelte';
   import { Composition } from './ui/shared/composition.svelte';
   import { readSetting, writeSetting } from './ui/shared/storage';
+  import Toolbar from './ui/shared/Toolbar.svelte';
 
   type Mode = 'retro' | 'modern';
 
@@ -16,12 +19,32 @@
     readSetting('mode') === 'modern' ? 'modern' : 'retro',
   );
 
+  /** Opens the melody of a shared link (`#rtttl=…`), then cleans the URL. */
+  function openSharedLink() {
+    const shared = melodyFromUrl(location.href);
+    if (!shared) return;
+    const current = composition.melody;
+    const replace =
+      current.notes.length === 0 ||
+      serializeRtttl(current) === serializeRtttl(shared) ||
+      confirm(
+        `Ouvrir la sonnerie partagée « ${shared.name} » ?\n` +
+          `« ${current.name} » sera remplacée.`,
+      );
+    if (replace) composition.load(shared);
+    history.replaceState(null, '', location.pathname + location.search);
+  }
+
+  openSharedLink();
+
   function selectMode(next: Mode) {
     composition.stop();
     mode = next;
     writeSetting('mode', next);
   }
 </script>
+
+<svelte:window onhashchange={openSharedLink} />
 
 <main>
   <header>
@@ -38,6 +61,8 @@
     </div>
   </header>
 
+  <Toolbar {composition} />
+
   {#if mode === 'retro'}
     <RetroComposer {composition} />
   {:else}
@@ -50,6 +75,10 @@
     max-width: 40rem;
     margin: 0 auto;
     padding: 1rem 1rem 2rem;
+  }
+
+  main > :global(.toolbar) {
+    margin-bottom: 1rem;
   }
 
   header {
