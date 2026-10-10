@@ -7,6 +7,8 @@ Une application web installable (PWA) pour composer, écouter, partager et expor
 - **Rétro** : l'écran LCD et le clavier T9 du Nokia 3310, comme en 2000 ;
 - **Moderne** : un clavier de piano, plus simple pour composer.
 
+👉 **Essayer : <https://skacofonix.github.io/ringtone-composer/>** (installable sur l'écran d'accueil).
+
 > 🚧 Projet en cours de (re)construction. Version précédente : <https://github.com/skacofonix/RingtoneComposer>
 
 ## Fonctionnalités prévues
