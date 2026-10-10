@@ -3,12 +3,8 @@
     clearNotes,
     deleteBackward,
     insertNote,
-    MAX_BPM,
-    MIN_BPM,
     moveCursor,
-    setBpm,
     setCursor,
-    setName,
   } from '../../core/editor';
   import {
     rest,
@@ -18,6 +14,7 @@
     type PitchClass,
   } from '../../core/melody';
   import type { Composition } from '../shared/composition.svelte';
+  import MelodySettings from '../shared/MelodySettings.svelte';
   import RtttlPanel from '../shared/RtttlPanel.svelte';
   import DurationPicker from './DurationPicker.svelte';
   import Piano from './Piano.svelte';
@@ -52,32 +49,7 @@
 </script>
 
 <div class="composer">
-  <div class="settings">
-    <label class="name">
-      <span>Nom</span>
-      <input
-        type="text"
-        value={composition.melody.name}
-        oninput={(e) => {
-          const name = e.currentTarget.value;
-          composition.edit((s) => setName(s, name));
-        }}
-      />
-    </label>
-    <label class="tempo">
-      <span>Tempo <strong>{composition.melody.bpm}</strong></span>
-      <input
-        type="range"
-        min={MIN_BPM}
-        max={Math.min(MAX_BPM, 400)}
-        value={composition.melody.bpm}
-        oninput={(e) => {
-          const bpm = e.currentTarget.valueAsNumber;
-          composition.edit((s) => setBpm(s, bpm));
-        }}
-      />
-    </label>
-  </div>
+  <MelodySettings {composition} />
 
   <Score
     notes={composition.melody.notes}
@@ -150,50 +122,6 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-  }
-
-  .settings {
-    display: flex;
-    gap: 0.75rem;
-  }
-
-  .settings label {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-    font-size: 0.85rem;
-    color: var(--muted);
-  }
-
-  .name {
-    flex: 1.4;
-    min-width: 0;
-  }
-
-  .tempo {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .tempo strong {
-    color: var(--text);
-  }
-
-  input[type='text'] {
-    width: 100%;
-    padding: 0.4rem 0.5rem;
-    font: inherit;
-    font-size: 1rem;
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: 0.4rem;
-    background: var(--surface);
-  }
-
-  input[type='range'] {
-    width: 100%;
-    margin: 0.55rem 0 0;
-    accent-color: var(--accent);
   }
 
   button {

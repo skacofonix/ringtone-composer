@@ -94,3 +94,21 @@ export function durationMs(note: Note, bpm: number): number {
 export function melodyDurationMs(melody: Melody): number {
   return melody.notes.reduce((sum, n) => sum + durationMs(n, melody.bpm), 0);
 }
+
+/**
+ * Moves the note value along DURATIONS: positive `steps` make the note
+ * shorter (4 → 8), negative ones longer (4 → 2). Clamped to 1…32.
+ */
+export function shiftDuration<T extends Note>(note: T, steps: number): T {
+  const index = DURATIONS.indexOf(note.duration);
+  const next = Math.min(DURATIONS.length - 1, Math.max(0, index + steps));
+  return next === index ? note : { ...note, duration: DURATIONS[next]! };
+}
+
+/** Adds or removes the sharp. `e` and `b` have no sharp and are unchanged. */
+export function toggleSharp(t: Tone): Tone {
+  const pitch = t.pitch.endsWith('#') ? t.pitch.slice(0, 1) : `${t.pitch}#`;
+  return PITCH_CLASSES.includes(pitch as PitchClass)
+    ? { ...t, pitch: pitch as PitchClass }
+    : t;
+}

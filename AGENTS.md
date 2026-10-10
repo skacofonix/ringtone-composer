@@ -63,7 +63,9 @@ docs/            # spécifications (RTTTL, notation Nokia…)
 
 **Règle d'or :** l'UI ne manipule jamais directement une chaîne RTTTL. Elle travaille sur le modèle `Melody` de `src/core`, et le RTTTL n'est qu'un format d'entrée/sortie. Toute logique non visuelle (navigation dans le clavier T9, changement d'octave, calcul de durée…) va dans `core/` et est testée.
 
-> L'arborescence ci-dessus est la cible. Pas encore écrits : `nokia.ts`, `share.ts`, `render.ts`, `encoders/`, `catalog/`, `ui/retro/`. Mets cette section à jour quand la structure réelle évolue.
+> L'arborescence ci-dessus est la cible. Pas encore écrits : `share.ts`, `render.ts`, `encoders/`, `catalog/`.
+>
+> `ui/retro/` contient aussi une police bitmap 5×7 (`font.ts`) et un rendu pur de l'écran 84×48 (`screen.ts`, testé) que `Lcd.svelte` se contente de peindre. `ui/shared/storage.ts` sauvegarde la mélodie (en RTTTL) et le mode dans `localStorage`. Mets cette section à jour quand la structure réelle évolue.
 >
 > Une première version en C# (Xamarin, 2015) existe : <https://github.com/skacofonix/RingtoneComposer>. Son dossier `RingtoneComposer.Core/Business/Converter/` est une bonne référence métier (RTTTL, notation Nokia, séquences de touches). Les points utiles sont repris dans `docs/`.
 
@@ -107,7 +109,7 @@ Avant de considérer une tâche terminée, `npm run verify` doit passer. La CI G
 2. ✅ `core/` : modèle `Melody`, parseur et sérialiseur RTTTL (+ tests)
 3. ✅ Lecteur audio (onde carrée)
 4. ✅ Mode moderne (piano)
-5. Mode rétro Nokia 3310 (LCD + T9)
+5. ✅ Mode rétro Nokia 3310 (LCD + T9), sauvegarde automatique
 6. Catalogue de classiques
 7. Partage par lien
 8. Export audio (WAV → MP3 → M4R) + guide « définir comme sonnerie »

@@ -1,13 +1,48 @@
 <script lang="ts">
   import ModernComposer from './ui/modern/ModernComposer.svelte';
+  import RetroComposer from './ui/retro/RetroComposer.svelte';
   import { Composition } from './ui/shared/composition.svelte';
+  import { readSetting, writeSetting } from './ui/shared/storage';
+
+  type Mode = 'retro' | 'modern';
+
+  const MODES: { id: Mode; label: string }[] = [
+    { id: 'retro', label: 'Rétro 3310' },
+    { id: 'modern', label: 'Moderne' },
+  ];
 
   const composition = new Composition();
+  let mode = $state<Mode>(
+    readSetting('mode') === 'modern' ? 'modern' : 'retro',
+  );
+
+  function selectMode(next: Mode) {
+    composition.stop();
+    mode = next;
+    writeSetting('mode', next);
+  }
 </script>
 
 <main>
-  <h1>RingtoneComposer</h1>
-  <ModernComposer {composition} />
+  <header>
+    <h1>RingtoneComposer</h1>
+    <div class="modes" role="tablist" aria-label="Mode de saisie">
+      {#each MODES as { id, label } (id)}
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === id}
+          onclick={() => selectMode(id)}>{label}</button
+        >
+      {/each}
+    </div>
+  </header>
+
+  {#if mode === 'retro'}
+    <RetroComposer {composition} />
+  {:else}
+    <ModernComposer {composition} />
+  {/if}
 </main>
 
 <style>
@@ -17,8 +52,42 @@
     padding: 1rem 1rem 2rem;
   }
 
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    margin-bottom: 1rem;
+  }
+
   h1 {
-    margin: 0 0 0.75rem;
-    font-size: 1.4rem;
+    margin: 0;
+    font-size: 1.3rem;
+  }
+
+  .modes {
+    display: flex;
+    padding: 0.2rem;
+    border-radius: 0.6rem;
+    background: var(--chip);
+  }
+
+  .modes button {
+    padding: 0.35rem 0.8rem;
+    font: inherit;
+    font-size: 0.9rem;
+    border: 0;
+    border-radius: 0.45rem;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  .modes button[aria-selected='true'] {
+    background: var(--surface);
+    color: var(--text);
+    font-weight: 600;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.15);
   }
 </style>

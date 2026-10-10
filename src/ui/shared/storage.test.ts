@@ -67,6 +67,6 @@ describe('melody persistence', () => {
   });
 
   it('works without storage at all', () => {
-    expect(readSetting('mode', undefined)).toBeNull();
+    expect(readSetting('mode', null)).toBeNull();
   });
 });

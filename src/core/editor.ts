@@ -36,6 +36,24 @@ export function deleteBackward(state: EditorState): EditorState {
   return { melody: { ...state.melody, notes }, cursor: state.cursor - 1 };
 }
 
+/** The note just before the cursor (the "current" note), if any. */
+export function noteBeforeCursor(state: EditorState): Note | undefined {
+  return state.melody.notes[state.cursor - 1];
+}
+
+/** Replaces the note before the cursor. Does nothing at the start. */
+export function updateNoteBeforeCursor(
+  state: EditorState,
+  update: (note: Note) => Note,
+): EditorState {
+  const current = noteBeforeCursor(state);
+  if (!current) return state;
+  const next = update(current);
+  if (next === current) return state;
+  const notes = state.melody.notes.with(state.cursor - 1, next);
+  return { ...state, melody: { ...state.melody, notes } };
+}
+
 /** Moves the cursor to `index`, clamped to the melody bounds. */
 export function setCursor(state: EditorState, index: number): EditorState {
   const cursor = clamp(Math.round(index), 0, state.melody.notes.length);

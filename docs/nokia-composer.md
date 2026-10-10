@@ -58,3 +58,14 @@ Exemple : `5 9 (6) 8 #**`
 - **Tempo** : valeurs prédéfinies ;
 - **Envoyer** : chez nous, partage par lien ;
 - **Effacer**, **Quitter**.
+
+## Choix d'implémentation (`src/core/nokia.ts`)
+
+Ces choix sont à corriger si un vrai 3310 dit autre chose :
+
+- Notation affichée : durée, point, dièse, note, octave, par exemple `8.#f2`. Un silence s'écrit `16-` ou `2.-`.
+- Une nouvelle note reprend la durée de la note précédente et l'octave du dernier `Tone`. La toute première note part de `NOKIA_START` (durée 8, octave Nokia 1).
+- `#` sur `e` ou `b`, ou `*`/`#` sur un silence : sans effet.
+- `*` après l'octave 3 revient à 1. Une octave importée hors plage (RTTTL 7) revient aussi à 1.
+- Appui long sur `C` : efface tout, après confirmation (il n'y a pas d'annulation).
+- Clavier d'ordinateur : maintenir une touche enfoncée équivaut à un appui long, grâce à la répétition automatique du clavier.

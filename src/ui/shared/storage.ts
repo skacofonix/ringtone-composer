@@ -9,17 +9,20 @@ import { parseRtttl, serializeRtttl } from '../../core/rtttl';
 const PREFIX = 'ringtone-composer:';
 const MELODY_KEY = 'melody';
 
-function defaultStorage(): Storage | undefined {
+/** `null` means "no storage". */
+type MaybeStorage = Storage | null;
+
+function defaultStorage(): MaybeStorage {
   try {
-    return globalThis.localStorage;
+    return globalThis.localStorage ?? null;
   } catch {
-    return undefined;
+    return null;
   }
 }
 
 export function readSetting(
   key: string,
-  storage = defaultStorage(),
+  storage: MaybeStorage = defaultStorage(),
 ): string | null {
   try {
     return storage?.getItem(PREFIX + key) ?? null;
@@ -31,7 +34,7 @@ export function readSetting(
 export function writeSetting(
   key: string,
   value: string,
-  storage = defaultStorage(),
+  storage: MaybeStorage = defaultStorage(),
 ): void {
   try {
     storage?.setItem(PREFIX + key, value);
@@ -41,7 +44,9 @@ export function writeSetting(
 }
 
 /** The melody saved by the last session, or `null`. */
-export function loadSavedMelody(storage = defaultStorage()): Melody | null {
+export function loadSavedMelody(
+  storage: MaybeStorage = defaultStorage(),
+): Melody | null {
   const text = readSetting(MELODY_KEY, storage);
   if (text === null) return null;
   try {
@@ -52,6 +57,9 @@ export function loadSavedMelody(storage = defaultStorage()): Melody | null {
 }
 
 /** Saves the melody as RTTTL, the app's interchange format. */
-export function saveMelody(melody: Melody, storage = defaultStorage()): void {
+export function saveMelody(
+  melody: Melody,
+  storage: MaybeStorage = defaultStorage(),
+): void {
   writeSetting(MELODY_KEY, serializeRtttl(melody), storage);
 }
