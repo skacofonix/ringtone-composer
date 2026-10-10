@@ -2,7 +2,7 @@
 
 Compose tes sonneries comme sur un Nokia 3310, directement depuis ton smartphone.
 
-Une application web installable (PWA) pour composer, écouter, partager et exporter des sonneries au format **RTTTL**. Deux modes sont prévus :
+Une application web installable (PWA) pour composer, écouter, partager et exporter des sonneries au format **RTTTL**. Deux modes :
 
 - **Rétro** : l'écran LCD et le clavier T9 du Nokia 3310, comme en 2000 ;
 - **Moderne** : un clavier de piano, plus simple pour composer.
@@ -11,12 +11,12 @@ Une application web installable (PWA) pour composer, écouter, partager et expor
 
 > 🚧 Projet en cours de (re)construction. Version précédente : <https://github.com/skacofonix/RingtoneComposer>
 
-## Fonctionnalités prévues
+## Fonctionnalités
 
 - Composition note par note, en mode rétro ou moderne
 - Lecture avec un son « buzzer » authentique
 - Import et export du texte RTTTL
-- Catalogue de classiques (Nokia Tune, Tetris, Mission Impossible…)
+- Catalogue de classiques du domaine public (Nokia Tune, Tetris, Lettre à Élise…)
 - Partage par lien
 - Export audio pour en faire sa sonnerie (Android et iPhone)
 - Fonctionnement hors ligne
