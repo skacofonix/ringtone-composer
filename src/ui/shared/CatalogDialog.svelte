@@ -1,6 +1,7 @@
 <script lang="ts">
   import { CLASSICS, type CatalogEntry } from '../../catalog/classics';
   import { parseRtttl } from '../../core/rtttl';
+  import { i18n } from '../../i18n/i18n.svelte';
   import type { Composition } from './composition.svelte';
   import Dialog from './Dialog.svelte';
 
@@ -10,6 +11,8 @@
   }
 
   let { open = $bindable(), composition }: Props = $props();
+
+  const t = $derived(i18n.t.catalog);
 
   /** Entry being auditioned, if any. */
   let playingId = $state<string | null>(null);
@@ -34,7 +37,7 @@
     const current = composition.melody;
     if (
       current.notes.length > 0 &&
-      !confirm(`Remplacer « ${current.name} » par « ${entry.title} » ?`)
+      !confirm(t.replace(current.name, i18n.pick(entry.title)))
     ) {
       return;
     }
@@ -43,30 +46,28 @@
   }
 </script>
 
-<Dialog bind:open title="Classiques">
+<Dialog bind:open title={t.title}>
   <ul>
     {#each CLASSICS as entry (entry.id)}
+      {@const title = i18n.pick(entry.title)}
       <li>
         <button
           type="button"
           class="listen"
           aria-label={playingId === entry.id
-            ? `Arrêter ${entry.title}`
-            : `Écouter ${entry.title}`}
+            ? t.stopListening(title)
+            : t.listen(title)}
           onclick={() => toggleAudition(entry)}
           >{playingId === entry.id ? '■' : '▶'}</button
         >
         <button type="button" class="entry" onclick={() => load(entry)}>
-          <span class="title">{entry.title}</span>
-          <span class="origin">{entry.origin}</span>
+          <span class="title">{title}</span>
+          <span class="origin">{i18n.pick(entry.origin)}</span>
         </button>
       </li>
     {/each}
   </ul>
-  <p class="note">
-    Uniquement des œuvres du domaine public. Toucher un titre le charge dans le
-    compositeur.
-  </p>
+  <p class="note">{t.note}</p>
 </Dialog>
 
 <style>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { i18n } from '../../i18n/i18n.svelte';
   import CatalogDialog from './CatalogDialog.svelte';
   import type { Composition } from './composition.svelte';
   import ExportDialog from './ExportDialog.svelte';
@@ -22,21 +23,24 @@
 
 <div class="toolbar">
   <button type="button" onclick={() => open(() => (catalogOpen = true))}>
-    <span aria-hidden="true">♫</span> Classiques
+    <span aria-hidden="true">♫</span>
+    {i18n.t.toolbar.classics}
   </button>
   <button
     type="button"
     disabled={composition.melody.notes.length === 0}
     onclick={() => open(() => (shareOpen = true))}
   >
-    <span aria-hidden="true">↗</span> Partager
+    <span aria-hidden="true">↗</span>
+    {i18n.t.toolbar.share}
   </button>
   <button
     type="button"
     disabled={composition.melody.notes.length === 0}
     onclick={() => open(() => (exportOpen = true))}
   >
-    <span aria-hidden="true">☎</span> Sonnerie
+    <span aria-hidden="true">☎</span>
+    {i18n.t.toolbar.ringtone}
   </button>
 </div>
 

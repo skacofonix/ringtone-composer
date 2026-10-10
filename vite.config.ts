@@ -16,8 +16,8 @@ export default defineConfig({
       manifest: {
         name: 'RingtoneComposer',
         short_name: 'Ringtones',
-        description: 'Compose tes sonneries comme sur un Nokia 3310.',
-        lang: 'fr',
+        description: 'Compose ringtones like on a Nokia 3310.',
+        lang: 'en',
         theme_color: '#1f2a44',
         background_color: '#1f2a44',
         display: 'standalone',

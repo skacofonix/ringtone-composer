@@ -1,5 +1,6 @@
 <script lang="ts">
   import { shareUrl } from '../../core/share';
+  import { i18n } from '../../i18n/i18n.svelte';
   import type { Composition } from './composition.svelte';
   import Dialog from './Dialog.svelte';
 
@@ -10,7 +11,9 @@
 
   let { open = $bindable(), composition }: Props = $props();
 
-  let status = $state('');
+  const t = $derived(i18n.t.share);
+
+  let status = $state<'copied' | 'shareFailed' | 'copyFailed' | null>(null);
 
   const url = $derived(
     shareUrl(composition.melody, location.origin + location.pathname),
@@ -21,13 +24,13 @@
     try {
       await navigator.share({
         title: composition.melody.name,
-        text: `Écoute ma sonnerie « ${composition.melody.name} »`,
+        text: t.message(composition.melody.name),
         url,
       });
     } catch (e) {
       // AbortError: the user closed the share sheet.
       if (!(e instanceof DOMException && e.name === 'AbortError')) {
-        status = 'Partage impossible, copie le lien.';
+        status = 'shareFailed';
       }
     }
   }
@@ -35,39 +38,33 @@
   async function copy() {
     try {
       await navigator.clipboard.writeText(url);
-      status = 'Lien copié !';
+      status = 'copied';
     } catch {
-      status = 'Copie impossible : sélectionne le lien.';
+      status = 'copyFailed';
     }
   }
 </script>
 
-<Dialog bind:open title="Partager">
-  <p>
-    Ce lien ouvre l'application avec « {composition.melody.name} ». La mélodie est
-    dans le lien lui-même, rien n'est envoyé sur un serveur.
-  </p>
+<Dialog bind:open title={t.title}>
+  <p>{t.intro(composition.melody.name)}</p>
   <input
     type="text"
     readonly
     value={url}
-    aria-label="Lien de partage"
+    aria-label={t.linkLabel}
     onfocus={(e) => e.currentTarget.select()}
   />
   <div class="actions">
     {#if canShare}
-      <button type="button" class="primary" onclick={share}>Partager…</button>
+      <button type="button" class="primary" onclick={share}>{t.share}</button>
     {/if}
     <button type="button" class:primary={!canShare} onclick={copy}
-      >Copier le lien</button
+      >{t.copyLink}</button
     >
   </div>
-  {#if status}<p class="status" role="status">{status}</p>{/if}
+  {#if status}<p class="status" role="status">{t[status]}</p>{/if}
   {#if location.hostname === 'localhost'}
-    <p class="warning">
-      Attention : ce lien pointe vers ta machine (localhost). Il ne marchera
-      pour les autres qu'une fois l'application publiée.
-    </p>
+    <p class="warning">{t.localhost}</p>
   {/if}
 </Dialog>
 

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { MAX_BPM, MIN_BPM, setBpm, setName } from '../../core/editor';
+  import { i18n } from '../../i18n/i18n.svelte';
   import type { Composition } from './composition.svelte';
 
   interface Props {
@@ -14,7 +15,7 @@
 
 <div class="settings">
   <label class="name">
-    <span>Nom</span>
+    <span>{i18n.t.settings.name}</span>
     <input
       type="text"
       value={composition.melody.name}
@@ -25,7 +26,9 @@
     />
   </label>
   <label class="tempo">
-    <span>Tempo <strong>{composition.melody.bpm}</strong></span>
+    <span
+      >{i18n.t.settings.tempo} <strong>{composition.melody.bpm}</strong></span
+    >
     <input
       type="range"
       min={MIN_BPM}

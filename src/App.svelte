@@ -1,6 +1,8 @@
 <script lang="ts">
   import { serializeRtttl } from './core/rtttl';
   import { melodyFromUrl } from './core/share';
+  import { i18n } from './i18n/i18n.svelte';
+  import { LOCALE_NAMES, LOCALES, isLocale } from './i18n/locale';
   import ModernComposer from './ui/modern/ModernComposer.svelte';
   import RetroComposer from './ui/retro/RetroComposer.svelte';
   import { Composition } from './ui/shared/composition.svelte';
@@ -9,10 +11,7 @@
 
   type Mode = 'retro' | 'modern';
 
-  const MODES: { id: Mode; label: string }[] = [
-    { id: 'retro', label: 'Rétro 3310' },
-    { id: 'modern', label: 'Moderne' },
-  ];
+  const MODES: Mode[] = ['retro', 'modern'];
 
   const composition = new Composition();
   let mode = $state<Mode>(
@@ -27,10 +26,7 @@
     const replace =
       current.notes.length === 0 ||
       serializeRtttl(current) === serializeRtttl(shared) ||
-      confirm(
-        `Ouvrir la sonnerie partagée « ${shared.name} » ?\n` +
-          `« ${current.name} » sera remplacée.`,
-      );
+      confirm(i18n.t.app.openShared(shared.name, current.name));
     if (replace) composition.load(shared);
     history.replaceState(null, '', location.pathname + location.search);
   }
@@ -49,15 +45,30 @@
 <main>
   <header>
     <h1>RingtoneComposer</h1>
-    <div class="modes" role="tablist" aria-label="Mode de saisie">
-      {#each MODES as { id, label } (id)}
-        <button
-          type="button"
-          role="tab"
-          aria-selected={mode === id}
-          onclick={() => selectMode(id)}>{label}</button
-        >
-      {/each}
+    <div class="controls">
+      <div class="modes" role="tablist" aria-label={i18n.t.app.modes}>
+        {#each MODES as id (id)}
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === id}
+            onclick={() => selectMode(id)}>{i18n.t.app[id]}</button
+          >
+        {/each}
+      </div>
+      <select
+        class="language"
+        aria-label={i18n.t.app.language}
+        value={i18n.locale}
+        onchange={(e) => {
+          const locale = e.currentTarget.value;
+          if (isLocale(locale)) i18n.setLocale(locale);
+        }}
+      >
+        {#each LOCALES as locale (locale)}
+          <option value={locale}>{LOCALE_NAMES[locale]}</option>
+        {/each}
+      </select>
     </div>
   </header>
 
@@ -93,6 +104,22 @@
   h1 {
     margin: 0;
     font-size: 1.3rem;
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .language {
+    padding: 0.4rem 0.3rem;
+    font: inherit;
+    font-size: 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    background: var(--surface);
+    color: var(--text);
   }
 
   .modes {

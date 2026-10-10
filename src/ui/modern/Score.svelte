@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Note } from '../../core/melody';
+  import { i18n } from '../../i18n/i18n.svelte';
 
   interface Props {
     notes: readonly Note[];
@@ -35,7 +36,7 @@
   }
 </script>
 
-<div class="score" aria-label="Partition">
+<div class="score" aria-label={i18n.t.modern.score}>
   {#if cursor === 0}<span class="caret" bind:this={caret}></span>{/if}
 
   {#each notes as note, i (i)}
@@ -51,7 +52,7 @@
     </button>
     {#if cursor === i + 1}<span class="caret" bind:this={caret}></span>{/if}
   {:else}
-    <span class="empty">Touche le piano pour ajouter des notes</span>
+    <span class="empty">{i18n.t.modern.emptyScore}</span>
   {/each}
 </div>
 

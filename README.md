@@ -20,6 +20,7 @@ Une application web installable (PWA) pour composer, écouter, partager et expor
 - Partage par lien
 - Export audio pour en faire sa sonnerie (Android et iPhone)
 - Fonctionnement hors ligne
+- En français et en anglais (langue du navigateur par défaut, modifiable)
 
 ## Développement
 

@@ -52,7 +52,8 @@ src/
     buzzer.ts      # oscillateur carré + enveloppes, commun à la lecture et à l'export
     render.ts      # rendu hors ligne -> PCM (OfflineAudioContext)
     encoders/      # PCM -> WAV (maison)
-  catalog/       # sonneries classiques en RTTTL (données)
+  catalog/       # sonneries classiques en RTTTL (données), titres traduits
+  i18n/          # traductions : fr.ts (référence), en.ts, détection de la langue
   ui/
     retro/         # Nokia 3310 : LCD pixelisé + clavier T9
     modern/        # piano + éditeur de notes
@@ -88,7 +89,8 @@ Avant de considérer une tâche terminée, `npm run verify` doit passer. La CI G
 
 ## Conventions
 
-- **Langue :** le code, les identifiants et les commentaires sont en anglais. La documentation (`docs/`, README) et les textes de l'UI sont en français pour l'instant.
+- **Langue :** le code, les identifiants et les commentaires sont en anglais. La documentation (`docs/`, README) est en français.
+- **Textes de l'interface :** jamais en dur dans les composants. Ajoute la clé dans `src/i18n/fr.ts` (la référence) **et** dans `src/i18n/en.ts` : TypeScript et un test vérifient que les deux dictionnaires ont les mêmes clés. On les utilise via `i18n.t.…` (`src/i18n/i18n.svelte.ts`). Le cœur (`core/`) ne contient aucun texte affiché : par exemple, les erreurs du parseur RTTTL portent un `code`, que l'UI traduit. Par défaut, l'app prend la langue du navigateur (français si elle commence par `fr`, anglais sinon) ; le choix de l'utilisateur est mémorisé.
 - TypeScript `strict`, pas de `any` sans justification en commentaire.
 - On préfère les fonctions pures et les données immuables dans `core/`. Pas de classes si une fonction suffit.
 - Composants Svelte petits, un composant par fichier, nommés en `PascalCase.svelte`.

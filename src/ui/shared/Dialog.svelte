@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { i18n } from '../../i18n/i18n.svelte';
 
   interface Props {
     open: boolean;
@@ -32,8 +33,10 @@
   <div class="panel">
     <header>
       <h2 id={titleId}>{title}</h2>
-      <button type="button" aria-label="Fermer" onclick={() => (open = false)}
-        >✕</button
+      <button
+        type="button"
+        aria-label={i18n.t.common.close}
+        onclick={() => (open = false)}>✕</button
       >
     </header>
     {@render children()}

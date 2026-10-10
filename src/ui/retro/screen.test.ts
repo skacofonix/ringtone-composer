@@ -98,6 +98,7 @@ describe('composer screen', () => {
         playingIndex: -1,
         playing: false,
         cursorVisible: true,
+        labels: { play: 'Play', stop: 'Stop', untitled: 'Untitled' },
       });
       expect(frame.some((p) => p === 1)).toBe(true);
     }
@@ -110,6 +111,7 @@ describe('composer screen', () => {
       playingIndex: 0,
       playing: true,
       cursorVisible: true,
+      labels: { play: 'Play', stop: 'Stop', untitled: 'Untitled' },
     });
     const { tokens } = layoutScore(melody(1));
     const t = tokens[0]!;

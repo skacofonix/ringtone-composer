@@ -1,5 +1,6 @@
 <script lang="ts">
   import { PITCH_CLASSES, type PitchClass } from '../../core/melody';
+  import { i18n } from '../../i18n/i18n.svelte';
 
   interface Props {
     /** Octave of the leftmost C. */
@@ -33,7 +34,7 @@
   const whiteWidth = $derived(100 / keys.whites.length);
 </script>
 
-<div class="piano" role="group" aria-label="Clavier de piano">
+<div class="piano" role="group" aria-label={i18n.t.modern.piano}>
   {#each keys.whites as key (`${key.pitch}${key.octave}`)}
     <button
       type="button"

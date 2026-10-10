@@ -22,13 +22,32 @@ const MAX_OCTAVE = 8;
 /** `[duration] [#] note [#] [.] [octave] [.]`, on a lowercased token without spaces. */
 const NOTE_PATTERN = /^(\d+)?(#)?([a-hp])(#)?(\.)?(\d)?(\.)?$/;
 
+/** What went wrong, for translated messages in the UI. */
+export type RtttlErrorCode =
+  | 'format'
+  | 'parameter'
+  | 'defaultDuration'
+  | 'defaultOctave'
+  | 'tempo'
+  | 'note'
+  | 'duration'
+  | 'sharpRest'
+  | 'doubleSharp'
+  | 'octave'
+  | 'noSharp';
+
 export class RtttlParseError extends Error {
+  readonly code: RtttlErrorCode;
+  /** The faulty fragment of text (a note, a parameter…), if any. */
+  readonly detail: string;
   /** Character offset in the parsed text where the problem was found. */
   readonly position: number;
 
-  constructor(message: string, position: number) {
-    super(`${message} (position ${position})`);
+  constructor(code: RtttlErrorCode, detail: string, position: number) {
+    super(`RTTTL ${code} error "${detail}" at position ${position}`);
     this.name = 'RtttlParseError';
+    this.code = code;
+    this.detail = detail;
     this.position = position;
   }
 }
@@ -56,7 +75,8 @@ export function parseRtttl(text: string): Melody {
   const sections = splitWithOffsets(text, ':');
   if (sections.length < 2 || sections.length > 3) {
     throw new RtttlParseError(
-      'Format attendu : « nom:d=4,o=6,b=63:notes »',
+      'format',
+      '',
       sections.length > 3 ? sections[3]!.offset - 1 : text.length,
     );
   }
@@ -110,7 +130,7 @@ function parseDefaults(section: Section): Defaults {
     const position = section.offset + entry.offset + leadingSpaces(entry.text);
     const match = /^([a-z])\s*=\s*(\d+)$/i.exec(raw);
     if (!match) {
-      throw new RtttlParseError(`Paramètre invalide « ${raw} »`, position);
+      throw new RtttlParseError('parameter', raw, position);
     }
 
     const key = match[1]!.toLowerCase();
@@ -118,25 +138,19 @@ function parseDefaults(section: Section): Defaults {
     switch (key) {
       case 'd':
         if (!isDuration(value)) {
-          throw new RtttlParseError(
-            `Durée par défaut invalide : ${value}`,
-            position,
-          );
+          throw new RtttlParseError('defaultDuration', String(value), position);
         }
         defaults.duration = value;
         break;
       case 'o':
         if (value < MIN_OCTAVE || value > MAX_OCTAVE) {
-          throw new RtttlParseError(
-            `Octave par défaut invalide : ${value}`,
-            position,
-          );
+          throw new RtttlParseError('defaultOctave', String(value), position);
         }
         defaults.octave = value;
         break;
       case 'b':
         if (value <= 0) {
-          throw new RtttlParseError(`Tempo invalide : ${value}`, position);
+          throw new RtttlParseError('tempo', String(value), position);
         }
         defaults.bpm = value;
         break;
@@ -157,7 +171,7 @@ function parseNotes(section: Section, defaults: Defaults): Note[] {
     const position = section.offset + entry.offset + leadingSpaces(entry.text);
     const match = NOTE_PATTERN.exec(raw);
     if (!match) {
-      throw new RtttlParseError(`Note invalide « ${raw} »`, position);
+      throw new RtttlParseError('note', raw, position);
     }
 
     const [
@@ -174,39 +188,33 @@ function parseNotes(section: Section, defaults: Defaults): Note[] {
     const duration =
       durationText === undefined ? defaults.duration : Number(durationText);
     if (!isDuration(duration)) {
-      throw new RtttlParseError(`Durée invalide « ${raw} »`, position);
+      throw new RtttlParseError('duration', raw, position);
     }
     const dotted = dotBefore !== undefined || dotAfter !== undefined;
 
     if (letter === 'p') {
       if (sharpBefore || sharpAfter) {
-        throw new RtttlParseError(
-          `Un silence ne peut pas être dièse « ${raw} »`,
-          position,
-        );
+        throw new RtttlParseError('sharpRest', raw, position);
       }
       notes.push(rest(duration, dotted));
       continue;
     }
 
     if (sharpBefore && sharpAfter) {
-      throw new RtttlParseError(`Double dièse « ${raw} »`, position);
+      throw new RtttlParseError('doubleSharp', raw, position);
     }
 
     const octave =
       octaveText === undefined ? defaults.octave : Number(octaveText);
     if (octave < MIN_OCTAVE || octave > MAX_OCTAVE) {
-      throw new RtttlParseError(`Octave invalide « ${raw} »`, position);
+      throw new RtttlParseError('octave', raw, position);
     }
 
     // `h` is the German name of `b`.
     const base = letter === 'h' ? 'b' : letter!;
     const pitch = `${base}${sharpBefore || sharpAfter ? '#' : ''}`;
     if (!isPitchClass(pitch)) {
-      throw new RtttlParseError(
-        `« ${pitch} » n'existe pas (pas de dièse sur e et b)`,
-        position,
-      );
+      throw new RtttlParseError('noSharp', pitch, position);
     }
 
     notes.push(tone(pitch, octave, duration, dotted));

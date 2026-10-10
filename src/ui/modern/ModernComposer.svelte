@@ -13,6 +13,7 @@
     type Note,
     type PitchClass,
   } from '../../core/melody';
+  import { i18n } from '../../i18n/i18n.svelte';
   import type { Composition } from '../shared/composition.svelte';
   import MelodySettings from '../shared/MelodySettings.svelte';
   import RtttlPanel from '../shared/RtttlPanel.svelte';
@@ -25,6 +26,8 @@
   }
 
   let { composition }: Props = $props();
+
+  const t = $derived(i18n.t.modern);
 
   /** RTTTL octaves 4 to 7: the piano shows two of them. */
   const MIN_BASE_OCTAVE = 4;
@@ -44,7 +47,7 @@
   }
 
   function clearAll() {
-    if (confirm('Effacer toutes les notes ?')) composition.edit(clearNotes);
+    if (confirm(i18n.t.common.clearAllConfirm)) composition.edit(clearNotes);
   }
 </script>
 
@@ -61,43 +64,43 @@
   <div class="toolbar">
     <button
       type="button"
-      aria-label="Curseur à gauche"
+      aria-label={t.cursorLeft}
       onclick={() => composition.edit((s) => moveCursor(s, -1))}>◀</button
     >
     <button
       type="button"
-      aria-label="Curseur à droite"
+      aria-label={t.cursorRight}
       onclick={() => composition.edit((s) => moveCursor(s, 1))}>▶</button
     >
     <button type="button" onclick={() => add(rest(duration, dotted))}
-      >Silence</button
+      >{t.rest}</button
     >
     <button
       type="button"
-      aria-label="Effacer la note avant le curseur"
+      aria-label={t.deleteNote}
       onclick={() => composition.edit(deleteBackward)}>⌫</button
     >
     <button
       type="button"
       class="danger"
       disabled={composition.melody.notes.length === 0}
-      onclick={clearAll}>Tout effacer</button
+      onclick={clearAll}>{t.clearAll}</button
     >
   </div>
 
   <DurationPicker bind:duration bind:dotted />
 
-  <div class="octave" role="group" aria-label="Octaves du clavier">
+  <div class="octave" role="group" aria-label={t.keyboardOctaves}>
     <button
       type="button"
-      aria-label="Octave plus grave"
+      aria-label={t.lowerOctave}
       disabled={baseOctave <= MIN_BASE_OCTAVE}
       onclick={() => baseOctave--}>−</button
     >
-    <span>Octaves {baseOctave}–{baseOctave + 1}</span>
+    <span>{t.octaves(baseOctave, baseOctave + 1)}</span>
     <button
       type="button"
-      aria-label="Octave plus aiguë"
+      aria-label={t.higherOctave}
       disabled={baseOctave >= MAX_BASE_OCTAVE}
       onclick={() => baseOctave++}>+</button
     >
@@ -111,7 +114,9 @@
     disabled={composition.melody.notes.length === 0}
     onclick={() => composition.togglePlay()}
   >
-    {composition.playing ? '■ Stop' : '▶ Jouer'}
+    {composition.playing
+      ? `■ ${i18n.t.common.stop}`
+      : `▶ ${i18n.t.common.play}`}
   </button>
 
   <RtttlPanel {composition} />

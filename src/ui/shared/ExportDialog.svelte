@@ -2,6 +2,7 @@
   import { encodeWav } from '../../audio/encoders/wav';
   import { EXPORT_SAMPLE_RATE, renderMelody } from '../../audio/render';
   import { melodyDurationMs } from '../../core/melody';
+  import { i18n } from '../../i18n/i18n.svelte';
   import type { Composition } from './composition.svelte';
   import Dialog from './Dialog.svelte';
 
@@ -14,6 +15,8 @@
 
   /** iOS refuses ringtones longer than this. */
   const IPHONE_MAX_SECONDS = 30;
+
+  const t = $derived(i18n.t.export);
 
   let file = $state<File | null>(null);
   let fileUrl = $state<string | null>(null);
@@ -46,7 +49,7 @@
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '');
-    return `${slug || 'sonnerie'}.wav`;
+    return `${slug || t.defaultFileName}.wav`;
   }
 
   async function prepare() {
@@ -60,7 +63,7 @@
       });
       fileUrl = URL.createObjectURL(file);
     } catch (e) {
-      error = `Création du fichier impossible : ${e instanceof Error ? e.message : e}`;
+      error = t.failed(e instanceof Error ? e.message : String(e));
     } finally {
       busy = false;
     }
@@ -72,22 +75,17 @@
       await navigator.share({ files: [file], title: composition.melody.name });
     } catch (e) {
       if (!(e instanceof DOMException && e.name === 'AbortError')) {
-        error = 'Partage impossible : utilise « Télécharger ».';
+        error = t.shareFailed;
       }
     }
   }
 </script>
 
-<Dialog bind:open title="Utiliser comme sonnerie">
-  <p>
-    « {composition.melody.name} » dure {seconds.toFixed(1)} s. Le fichier exporté
-    est au format WAV, lisible par Android et par GarageBand sur iPhone.
-  </p>
+<Dialog bind:open title={t.title}>
+  <p>{t.intro(composition.melody.name, seconds.toFixed(1))}</p>
 
   {#if seconds > IPHONE_MAX_SECONDS}
-    <p class="warning">
-      Plus de {IPHONE_MAX_SECONDS} s : l'iPhone coupera la sonnerie.
-    </p>
+    <p class="warning">{t.tooLong(IPHONE_MAX_SECONDS)}</p>
   {/if}
 
   {#if !file}
@@ -97,20 +95,20 @@
       disabled={busy || composition.melody.notes.length === 0}
       onclick={prepare}
     >
-      {busy ? 'Création…' : 'Créer le fichier audio'}
+      {busy ? t.creating : t.create}
     </button>
   {:else}
     <div class="actions">
       {#if canShareFile}
         <button type="button" class="primary" onclick={shareFile}
-          >Partager / Enregistrer…</button
+          >{t.shareFile}</button
         >
       {/if}
       <a
         class="button"
         class:primary={!canShareFile}
         href={fileUrl}
-        download={file.name}>Télécharger {file.name}</a
+        download={file.name}>{t.download(file.name)}</a
       >
     </div>
   {/if}
@@ -118,31 +116,16 @@
   {#if error}<p class="warning" role="alert">{error}</p>{/if}
 
   <details>
-    <summary>Sur Android</summary>
+    <summary>{t.androidSummary}</summary>
     <ol>
-      <li>Télécharge le fichier.</li>
-      <li>Ouvre Paramètres → Sons (et vibrations) → Sonnerie du téléphone.</li>
-      <li>
-        Choisis « Ajouter » ou « + » (selon le modèle), puis sélectionne le
-        fichier dans Téléchargements.
-      </li>
+      {#each t.android as step (step)}<li>{step}</li>{/each}
     </ol>
   </details>
 
   <details>
-    <summary>Sur iPhone (avec GarageBand, gratuit)</summary>
+    <summary>{t.iphoneSummary}</summary>
     <ol>
-      <li>« Partager / Enregistrer… » → « Enregistrer dans Fichiers ».</li>
-      <li>
-        Dans GarageBand, crée un projet « Enregistreur audio », passe en vue
-        pistes, touche l'icône des boucles → « Fichiers » et glisse le fichier
-        sur la piste.
-      </li>
-      <li>
-        Reviens à « Mes morceaux », appui long sur le projet → Partager →
-        Sonnerie → Exporter.
-      </li>
-      <li>Puis Réglages → Sons et vibrations → Sonnerie.</li>
+      {#each t.iphone as step (step)}<li>{step}</li>{/each}
     </ol>
   </details>
 </Dialog>

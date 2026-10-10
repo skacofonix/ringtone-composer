@@ -70,6 +70,8 @@ export interface ComposerScreen {
   readonly playing: boolean;
   /** Blink phase of the cursor. */
   readonly cursorVisible: boolean;
+  /** Texts drawn on the screen, in the interface language. */
+  readonly labels: { play: string; stop: string; untitled: string };
 }
 
 /* Layout, in pixels. */
@@ -120,14 +122,15 @@ export function layoutScore(melody: Melody): {
 /** The Composer screen: title and tempo, the score, and the soft key label. */
 export function renderComposer(screen: ComposerScreen): Frame {
   const frame = createFrame();
-  const { melody, cursor, playingIndex, playing, cursorVisible } = screen;
+  const { melody, cursor, playingIndex, playing, cursorVisible, labels } =
+    screen;
 
   // Header: name on the left, tempo on the right, then a rule.
   const tempo = `♪${melody.bpm}`;
   const tempoWidth = textWidth(tempo);
   drawText(frame, LCD_WIDTH - tempoWidth, 0, tempo);
   const nameWidth = LCD_WIDTH - tempoWidth - 4;
-  drawText(frame, 0, 0, fitText(melody.name || 'Sans titre', nameWidth));
+  drawText(frame, 0, 0, fitText(melody.name || labels.untitled, nameWidth));
   fillRect(frame, 0, HEADER_LINE_Y, LCD_WIDTH, 1);
 
   // Score: scroll so that the followed position stays visible.
@@ -165,7 +168,7 @@ export function renderComposer(screen: ComposerScreen): Frame {
   }
 
   // Soft key label, centered at the bottom (the Navi key).
-  const label = playing ? 'Stop' : 'Jouer';
+  const label = playing ? labels.stop : labels.play;
   drawText(
     frame,
     Math.round((LCD_WIDTH - textWidth(label)) / 2),

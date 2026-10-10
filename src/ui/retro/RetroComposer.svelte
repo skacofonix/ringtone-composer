@@ -1,6 +1,7 @@
 <script lang="ts">
   import { noteBeforeCursor } from '../../core/editor';
   import { pressKey, type NokiaKey } from '../../core/nokia';
+  import { i18n } from '../../i18n/i18n.svelte';
   import type { Composition } from '../shared/composition.svelte';
   import MelodySettings from '../shared/MelodySettings.svelte';
   import RtttlPanel from '../shared/RtttlPanel.svelte';
@@ -14,20 +15,23 @@
 
   let { composition }: Props = $props();
 
-  const KEYPAD: { key: NokiaKey; hint: string; label: string }[] = [
-    { key: '1', hint: 'C', label: 'Do' },
-    { key: '2', hint: 'D', label: 'Ré' },
-    { key: '3', hint: 'E', label: 'Mi' },
-    { key: '4', hint: 'F', label: 'Fa' },
-    { key: '5', hint: 'G', label: 'Sol' },
-    { key: '6', hint: 'A', label: 'La' },
-    { key: '7', hint: 'B', label: 'Si' },
-    { key: '8', hint: 'court', label: 'Plus court' },
-    { key: '9', hint: 'long', label: 'Plus long' },
-    { key: '*', hint: 'oct.', label: 'Octave' },
-    { key: '0', hint: 'pause', label: 'Silence' },
-    { key: '#', hint: '♯', label: 'Dièse' },
-  ];
+  /** Keypad layout, row by row; texts come from the dictionary. */
+  const KEYPAD = [
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    '*',
+    '0',
+    '#',
+  ] as const;
+
+  const t = $derived(i18n.t.retro);
 
   /** Keys that change the current note: play it so the change is heard. */
   const PREVIEW_KEYS = new Set<NokiaKey>([
@@ -60,15 +64,24 @@
       playingIndex: composition.playingIndex,
       playing: composition.playing,
       cursorVisible,
+      labels: {
+        play: i18n.t.common.play,
+        stop: i18n.t.common.stop,
+        untitled: i18n.t.common.untitled,
+      },
     }),
   );
 
   const screenLabel = $derived(
-    `Écran : ${composition.melody.name}, ${composition.melody.notes.length} notes, tempo ${composition.melody.bpm}`,
+    t.screen(
+      composition.melody.name,
+      composition.melody.notes.length,
+      composition.melody.bpm,
+    ),
   );
 
   function press(key: NokiaKey, long: boolean) {
-    if (key === 'clear' && long && !confirm('Effacer toutes les notes ?')) {
+    if (key === 'clear' && long && !confirm(i18n.t.common.clearAllConfirm)) {
       return;
     }
     composition.edit((s) => pressKey(s, key, long));
@@ -147,38 +160,41 @@
     </div>
 
     <div class="navi-row">
-      <div class="rocker" role="group" aria-label="Déplacer le curseur">
+      <div class="rocker" role="group" aria-label={t.moveCursor}>
         <button
           type="button"
-          aria-label="Note précédente"
+          aria-label={t.previousNote}
           {@attach pressable(() => press('left', false))}>◀</button
         >
         <button
           type="button"
-          aria-label="Note suivante"
+          aria-label={t.nextNote}
           {@attach pressable(() => press('right', false))}>▶</button
         >
       </div>
       <button
         type="button"
         class="navi"
-        aria-label={composition.playing ? 'Stop' : 'Jouer'}
+        aria-label={composition.playing
+          ? i18n.t.common.stop
+          : i18n.t.common.play}
         onclick={() => composition.togglePlay()}
       ></button>
       <button
         type="button"
         class="c-key"
-        aria-label="Effacer (appui long : tout effacer)"
+        aria-label={t.clearKey}
         {@attach pressable((long) => press('clear', long))}>C</button
       >
     </div>
 
     <div class="keypad">
-      {#each KEYPAD as { key, hint, label } (key)}
+      {#each KEYPAD as key (key)}
+        {@const { hint, label } = t.keys[key]}
         <button
           type="button"
           class="key"
-          aria-label={`${key} : ${label}`}
+          aria-label={`${key}, ${label}`}
           {@attach pressable((long) => press(key, long))}
         >
           <span class="digit">{key}</span>
@@ -191,26 +207,15 @@
   <MelodySettings {composition} />
 
   <details class="help">
-    <summary>Comment ça marche ?</summary>
+    <summary>{t.helpSummary}</summary>
     <ul>
-      <li>
-        <kbd>1</kbd> à <kbd>7</kbd> : notes do à si. <kbd>0</kbd> : silence.
-      </li>
-      <li>Appui long sur une note : note pointée (durée × 1,5).</li>
-      <li>
-        <kbd>8</kbd> / <kbd>9</kbd> : note courante plus courte / plus longue.
-      </li>
-      <li><kbd>*</kbd> : octave suivante, <kbd>#</kbd> : dièse.</li>
-      <li>
-        <kbd>C</kbd> : effacer la note, appui long : tout effacer. ◀ ▶ : déplacer
-        le curseur.
-      </li>
-      <li>Grande touche centrale : jouer / arrêter.</li>
-      <li>
-        Au clavier d'ordinateur : chiffres, <kbd>*</kbd>, <kbd>#</kbd>,
-        <kbd>Retour arrière</kbd>, flèches et <kbd>Entrée</kbd>. Garder une
-        touche enfoncée = appui long.
-      </li>
+      {#each t.help as item (item)}
+        <!-- `backticks` in the text mark keys. -->
+        <li>
+          {#each item.split('`') as part, i (i)}{#if i % 2}<kbd>{part}</kbd
+              >{:else}{part}{/if}{/each}
+        </li>
+      {/each}
     </ul>
   </details>
 

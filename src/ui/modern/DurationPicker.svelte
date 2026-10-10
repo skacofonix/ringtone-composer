@@ -1,5 +1,6 @@
 <script lang="ts">
   import { DURATIONS, type Duration } from '../../core/melody';
+  import { i18n } from '../../i18n/i18n.svelte';
 
   interface Props {
     duration: Duration;
@@ -8,22 +9,15 @@
 
   let { duration = $bindable(), dotted = $bindable() }: Props = $props();
 
-  const NAMES: Record<Duration, string> = {
-    1: 'Ronde',
-    2: 'Blanche',
-    4: 'Noire',
-    8: 'Croche',
-    16: 'Double croche',
-    32: 'Triple croche',
-  };
+  const t = $derived(i18n.t.modern);
 </script>
 
-<div class="picker" role="group" aria-label="Durée des prochaines notes">
+<div class="picker" role="group" aria-label={t.nextDuration}>
   {#each DURATIONS as value (value)}
     <button
       type="button"
-      title={NAMES[value]}
-      aria-label={NAMES[value]}
+      title={t.durations[value]}
+      aria-label={t.durations[value]}
       aria-pressed={duration === value}
       onclick={() => (duration = value)}
     >
@@ -33,8 +27,8 @@
   <button
     type="button"
     class="dot"
-    title="Note pointée (durée × 1,5)"
-    aria-label="Note pointée"
+    title={t.dottedTitle}
+    aria-label={t.dotted}
     aria-pressed={dotted}
     onclick={() => (dotted = !dotted)}
   >
