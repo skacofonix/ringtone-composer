@@ -1,7 +1,9 @@
 <script lang="ts">
   import { encodeWav } from '../../audio/encoders/wav';
+  import { INSTRUMENTS } from '../../audio/instruments';
   import { EXPORT_SAMPLE_RATE, renderMelody } from '../../audio/render';
   import { melodyDurationMs } from '../../core/melody';
+  import { encodeMidi } from '../../core/midi';
   import { i18n } from '../../i18n/i18n.svelte';
   import type { Composition } from './composition.svelte';
   import Dialog from './Dialog.svelte';
@@ -35,30 +37,35 @@
     error = '';
   }
 
-  // A new melody, or opening/closing the dialog, discards the prepared file.
+  // A new melody or instrument, or opening/closing the dialog, discards the
+  // prepared file.
   $effect(() => {
     void composition.melody;
+    void composition.instrument;
     void open;
     return reset;
   });
 
-  function fileName(name: string): string {
+  function fileName(name: string, extension: string): string {
     const slug = name
       .normalize('NFD')
       .replace(/\p{Diacritic}/gu, '')
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '');
-    return `${slug || t.defaultFileName}.wav`;
+    return `${slug || t.defaultFileName}.${extension}`;
   }
 
   async function prepare() {
     busy = true;
     error = '';
     try {
-      const samples = await renderMelody(composition.melody);
+      const samples = await renderMelody(
+        composition.melody,
+        composition.instrument,
+      );
       const wav = encodeWav(samples, EXPORT_SAMPLE_RATE);
-      file = new File([wav], fileName(composition.melody.name), {
+      file = new File([wav], fileName(composition.melody.name, 'wav'), {
         type: 'audio/wav',
       });
       fileUrl = URL.createObjectURL(file);
@@ -67,6 +74,22 @@
     } finally {
       busy = false;
     }
+  }
+
+  const midiName = $derived(fileName(composition.melody.name, 'mid'));
+
+  /** The MIDI file is tiny: built and downloaded in one go. */
+  function downloadMidi() {
+    const bytes = encodeMidi(
+      composition.melody,
+      INSTRUMENTS[composition.instrument].midiProgram,
+    );
+    const url = URL.createObjectURL(new Blob([bytes], { type: 'audio/midi' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = midiName;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
   async function shareFile() {
@@ -82,7 +105,10 @@
 </script>
 
 <Dialog bind:open title={t.title}>
-  <p>{t.intro(composition.melody.name, seconds.toFixed(1))}</p>
+  <p>
+    {t.intro(composition.melody.name, seconds.toFixed(1))}
+    {t.instrument(i18n.t.instruments[composition.instrument])}
+  </p>
 
   {#if seconds > IPHONE_MAX_SECONDS}
     <p class="warning">{t.tooLong(IPHONE_MAX_SECONDS)}</p>
@@ -127,6 +153,14 @@
     <ol>
       {#each t.iphone as step (step)}<li>{step}</li>{/each}
     </ol>
+  </details>
+
+  <details>
+    <summary>{t.midiSummary}</summary>
+    <p class="midi">{t.midiIntro}</p>
+    <button type="button" onclick={downloadMidi}
+      >{t.midiDownload(midiName)}</button
+    >
   </details>
 </Dialog>
 
@@ -181,6 +215,10 @@
   summary {
     cursor: pointer;
     font-weight: 600;
+  }
+
+  .midi {
+    margin: 0.4rem 0 0.6rem;
   }
 
   ol {

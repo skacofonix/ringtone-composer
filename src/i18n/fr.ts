@@ -27,6 +27,15 @@ export const fr = {
   settings: {
     name: 'Nom',
     tempo: 'Tempo',
+    instrument: 'Instrument',
+  },
+  instruments: {
+    buzzer: 'Buzzer (Nokia)',
+    chiptune: 'Console 8-bit',
+    flute: 'Flûte',
+    organ: 'Orgue',
+    musicBox: 'Boîte à musique',
+    electricPiano: 'Piano électrique',
   },
   rtttl: {
     summary: 'Texte RTTTL (copier, coller, importer)',
@@ -142,6 +151,11 @@ export const fr = {
     failed: (reason: string) => `Création du fichier impossible : ${reason}`,
     shareFailed: 'Partage impossible : utilise « Télécharger ».',
     defaultFileName: 'sonnerie',
+    instrument: (name: string) => `Instrument : ${name}.`,
+    midiSummary: 'Fichier MIDI (pour aller plus loin)',
+    midiIntro:
+      "Le fichier .mid s'ouvre dans GarageBand, MuseScore ou tout logiciel de musique, pour retravailler la mélodie avec l'instrument de ton choix.",
+    midiDownload: (file: string) => `Télécharger ${file}`,
     androidSummary: 'Sur Android',
     android: [
       'Télécharge le fichier.',

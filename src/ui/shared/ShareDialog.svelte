@@ -16,7 +16,11 @@
   let status = $state<'copied' | 'shareFailed' | 'copyFailed' | null>(null);
 
   const url = $derived(
-    shareUrl(composition.melody, location.origin + location.pathname),
+    shareUrl(
+      composition.melody,
+      location.origin + location.pathname,
+      composition.instrument,
+    ),
   );
   const canShare = typeof navigator.share === 'function';
 

@@ -2,6 +2,11 @@
  * The melody being composed and its playback, shared by the retro and modern
  * modes. Thin reactive wrapper: the editing logic lives in core/editor.ts.
  */
+import {
+  DEFAULT_INSTRUMENT,
+  isInstrumentId,
+  type InstrumentId,
+} from '../../audio/instruments';
 import { MelodyPlayer } from '../../audio/player';
 import { createEditor, type EditorState } from '../../core/editor';
 import {
@@ -11,7 +16,19 @@ import {
   type Note,
 } from '../../core/melody';
 import { parseRtttl } from '../../core/rtttl';
-import { loadSavedMelody, saveMelody } from './storage';
+import {
+  loadSavedMelody,
+  readSetting,
+  saveMelody,
+  writeSetting,
+} from './storage';
+
+const INSTRUMENT_SETTING = 'instrument';
+
+function savedInstrument(): InstrumentId {
+  const saved = readSetting(INSTRUMENT_SETTING);
+  return isInstrumentId(saved) ? saved : DEFAULT_INSTRUMENT;
+}
 
 /** A key press should not ring for the whole length of a whole note. */
 const MAX_PREVIEW_SECONDS = 0.4;
@@ -24,6 +41,8 @@ export class Composition {
   editor = $state.raw<EditorState>(
     createEditor(loadSavedMelody() ?? parseRtttl(DEFAULT_RTTTL)),
   );
+  /** Instrument used for playback, previews and the audio export. */
+  instrument = $state<InstrumentId>(savedInstrument());
   playing = $state(false);
   /** Index of the note being played, -1 when nothing plays. */
   playingIndex = $state(-1);
@@ -53,6 +72,12 @@ export class Composition {
     saveMelody(editor.melody);
   }
 
+  setInstrument(instrument: InstrumentId): void {
+    this.stop();
+    this.instrument = instrument;
+    writeSetting(INSTRUMENT_SETTING, instrument);
+  }
+
   togglePlay(): void {
     if (this.playing) {
       this.stop();
@@ -60,7 +85,7 @@ export class Composition {
     }
     if (this.melody.notes.length === 0) return;
     this.playing = true;
-    void this.#player.play(this.melody, {
+    void this.#player.play(this.melody, this.instrument, {
       onNote: (index) => (this.playingIndex = index),
       onEnd: () => (this.playing = false),
     });
@@ -72,7 +97,7 @@ export class Composition {
    */
   audition(melody: Melody, onEnd: () => void): void {
     this.stop();
-    void this.#player.play(melody, { onEnd });
+    void this.#player.play(melody, this.instrument, { onEnd });
   }
 
   stop(): void {
@@ -86,6 +111,7 @@ export class Composition {
     void this.#player.preview(
       frequency(note),
       Math.min(seconds, MAX_PREVIEW_SECONDS),
+      this.instrument,
     );
   }
 }

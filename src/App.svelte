@@ -1,6 +1,7 @@
 <script lang="ts">
   import { serializeRtttl } from './core/rtttl';
-  import { melodyFromUrl } from './core/share';
+  import { isInstrumentId } from './audio/instruments';
+  import { readSharedLink } from './core/share';
   import { i18n } from './i18n/i18n.svelte';
   import { LOCALE_NAMES, LOCALES, isLocale } from './i18n/locale';
   import ModernComposer from './ui/modern/ModernComposer.svelte';
@@ -20,14 +21,20 @@
 
   /** Opens the melody of a shared link (`#rtttl=…`), then cleans the URL. */
   function openSharedLink() {
-    const shared = melodyFromUrl(location.href);
-    if (!shared) return;
+    const link = readSharedLink(location.href);
+    if (!link) return;
+    const shared = link.melody;
     const current = composition.melody;
     const replace =
       current.notes.length === 0 ||
       serializeRtttl(current) === serializeRtttl(shared) ||
       confirm(i18n.t.app.openShared(shared.name, current.name));
-    if (replace) composition.load(shared);
+    if (replace) {
+      composition.load(shared);
+      if (isInstrumentId(link.instrument)) {
+        composition.setInstrument(link.instrument);
+      }
+    }
     history.replaceState(null, '', location.pathname + location.search);
   }
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { rest, tone, type Melody } from './melody';
-import { melodyFromUrl, shareUrl } from './share';
+import { readSharedLink, shareUrl } from './share';
 
 const melody: Melody = {
   name: 'Ma sonnerie #1',
@@ -13,7 +13,12 @@ const BASE = 'https://skacofonix.github.io/ringtone-composer/';
 describe('share links', () => {
   it('round-trips a melody, including # and spaces', () => {
     const url = shareUrl(melody, BASE);
-    expect(melodyFromUrl(url)).toEqual(melody);
+    expect(readSharedLink(url)).toEqual({ melody, instrument: null });
+  });
+
+  it('carries the instrument', () => {
+    const url = shareUrl(melody, BASE, 'flute');
+    expect(readSharedLink(url)?.instrument).toBe('flute');
   });
 
   it('keeps the app path and puts the melody in the fragment', () => {
@@ -29,8 +34,8 @@ describe('share links', () => {
   });
 
   it('returns null without melody or with an invalid one', () => {
-    expect(melodyFromUrl(BASE)).toBeNull();
-    expect(melodyFromUrl(`${BASE}#other=1`)).toBeNull();
-    expect(melodyFromUrl(`${BASE}#rtttl=nonsense`)).toBeNull();
+    expect(readSharedLink(BASE)).toBeNull();
+    expect(readSharedLink(`${BASE}#other=1`)).toBeNull();
+    expect(readSharedLink(`${BASE}#rtttl=nonsense`)).toBeNull();
   });
 });

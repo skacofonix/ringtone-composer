@@ -45,12 +45,14 @@ src/
     editor.ts      # opérations d'édition (curseur d'insertion, ajout, suppression, tempo)
     rtttl.ts       # parse / serialize RTTTL (aller-retour sans perte)
     nokia.ts       # notation Composer Nokia + machine à états du clavier T9
-    share.ts       # encodage/décodage de la mélodie dans l'URL
+    share.ts       # encodage/décodage de la mélodie (et de l'instrument) dans l'URL
+    midi.ts        # export fichier MIDI standard (.mid)
   audio/         # dépend de Web Audio API
     schedule.ts    # mélodie -> timeline (début, durée, fréquence), pur et testé
     player.ts      # lecture temps réel (oscillateur carré), aperçu d'une note
-    buzzer.ts      # oscillateur carré + enveloppes, commun à la lecture et à l'export
-    render.ts      # rendu hors ligne -> PCM (OfflineAudioContext)
+    instruments.ts # instruments synthétisés, décrits comme des données (partiels, ADSR, FM)
+    synth.ts       # une voix par note, commun à la lecture et à l'export
+    render.ts      # rendu hors ligne -> PCM (OfflineAudioContext), normalisé
     encoders/      # PCM -> WAV (maison)
   catalog/       # sonneries classiques en RTTTL (données), titres traduits
   i18n/          # traductions : fr.ts (référence), en.ts, détection de la langue
@@ -104,6 +106,8 @@ Avant de considérer une tâche terminée, `npm run verify` doit passer. La CI G
 - **Composer Nokia** : notation du type `8c2 8#d2 4g2`, avec un clavier T9 où les touches 1 à 7 donnent les notes et 0 le silence. Voir [docs/nokia-composer.md](docs/nokia-composer.md).
 - **Audio iOS** : l'`AudioContext` doit être créé ou repris (`resume()`) dans un geste utilisateur (tap), sinon aucun son. Le mode silencieux de l'iPhone peut couper le son web.
 - **Définir comme sonnerie** : impossible depuis le web. On exporte un fichier (MP3/OGG pour Android, `.m4r` pour iPhone, via GarageBand) et on guide l'utilisateur. Sur iOS, la durée max d'une sonnerie est d'environ 30 s.
+- **Enveloppes Web Audio** : toujours ancrer chaque étape par un `setValueAtTime` explicite. Un `setTargetAtTime` qui suit directement un `linearRampToValueAtTime` diverge sur certains moteurs (testé : le niveau explose). Voir `audio/synth.ts`.
+- **Tester l'audio** : `OfflineAudioContext` n'existe pas dans Node et Edge headless le rend mal. Pour vérifier un rendu, utiliser `node-web-audio-api` dans un dossier temporaire (hors dépendances du projet) et importer `src/audio/render.ts`.
 - **Polyphonie** : hors périmètre pour la v1, le RTTTL étant monophonique par nature. Piste envisagée : plusieurs voix RTTTL jouées en parallèle (comme les sonneries polyphoniques des Nokia suivants), sans casser le modèle mono.
 
 ## Feuille de route
@@ -116,5 +120,6 @@ Avant de considérer une tâche terminée, `npm run verify` doit passer. La CI G
 6. ✅ Catalogue de classiques (domaine public)
 7. ✅ Partage par lien (RTTTL dans le fragment `#rtttl=`)
 8. ✅ Export audio WAV + guide « définir comme sonnerie » (Android, iPhone via GarageBand). Plus tard, si besoin : MP3 ou M4R.
+   8 bis. ✅ Choix de l'instrument (6 instruments synthétisés) + export MIDI. Étape suivante possible : vrais instruments General MIDI (SoundFonts, ex. `smplr`).
 9. Polyphonie (exploratoire)
 10. Plus tard : emballage Capacitor pour Android (bouton natif « Définir comme sonnerie », Play Store)

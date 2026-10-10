@@ -25,6 +25,15 @@ export const en: Messages = {
   settings: {
     name: 'Name',
     tempo: 'Tempo',
+    instrument: 'Instrument',
+  },
+  instruments: {
+    buzzer: 'Buzzer (Nokia)',
+    chiptune: '8-bit console',
+    flute: 'Flute',
+    organ: 'Organ',
+    musicBox: 'Music box',
+    electricPiano: 'Electric piano',
   },
   rtttl: {
     summary: 'RTTTL text (copy, paste, import)',
@@ -137,6 +146,11 @@ export const en: Messages = {
     failed: (reason) => `Cannot create the file: ${reason}`,
     shareFailed: 'Cannot share: use “Download”.',
     defaultFileName: 'ringtone',
+    instrument: (name) => `Instrument: ${name}.`,
+    midiSummary: 'MIDI file (to go further)',
+    midiIntro:
+      'The .mid file opens in GarageBand, MuseScore or any music software, to rework the melody with the instrument of your choice.',
+    midiDownload: (file) => `Download ${file}`,
     androidSummary: 'On Android',
     android: [
       'Download the file.',

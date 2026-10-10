@@ -1,10 +1,11 @@
 /**
- * Real-time playback with the Web Audio API: a single square-wave oscillator,
- * like the piezo buzzer of the Nokia phones of the 2000s.
+ * Real-time playback with the Web Audio API, with the selected instrument
+ * (the Nokia square-wave buzzer by default).
  */
 import type { Melody } from '../core/melody';
-import { createBuzzer, scheduleMelodyOn, scheduleTone } from './buzzer';
+import { INSTRUMENTS, type InstrumentId } from './instruments';
 import { noteIndexAt, scheduleMelody } from './schedule';
+import { createOutput, playSchedule, scheduleNote, type Output } from './synth';
 
 export interface PlayOptions {
   /** Called when the playing note changes (-1 when nothing plays). */
@@ -17,9 +18,13 @@ export interface PlayOptions {
 const VOLUME = 0.15;
 /** Small delay before the first note, so scheduling never starts in the past. */
 const START_DELAY_SECONDS = 0.05;
+/** Time to let the fade-out of stop() finish before disconnecting. */
+const FADE_OUT_MS = 100;
 
 interface Playback {
-  readonly oscillator: OscillatorNode;
+  /** Silent source whose end marks the end of the melody (and its tail). */
+  readonly clock: ConstantSourceNode;
+  readonly output: Output;
   readonly options: PlayOptions;
   frame: number;
   finished: boolean;
@@ -39,7 +44,11 @@ export class MelodyPlayer {
    * Plays a melody, stopping the current one if any. Must be called from a
    * user gesture (tap, click) the first time, or browsers keep audio muted.
    */
-  async play(melody: Melody, options: PlayOptions = {}): Promise<void> {
+  async play(
+    melody: Melody,
+    instrument: InstrumentId,
+    options: PlayOptions = {},
+  ): Promise<void> {
     this.stop();
     const generation = this.#generation;
     const context = await this.#ensureContext();
@@ -47,25 +56,31 @@ export class MelodyPlayer {
 
     const schedule = scheduleMelody(melody);
     const t0 = context.currentTime + START_DELAY_SECONDS;
-    const buzzer = createBuzzer(context, t0);
-    const { oscillator, gain } = buzzer;
-    const end = scheduleMelodyOn(buzzer, schedule, t0, VOLUME);
+    const output = createOutput(context, VOLUME);
+    const silentAt = playSchedule(
+      context,
+      output,
+      INSTRUMENTS[instrument],
+      schedule,
+      t0,
+    );
 
+    const clock = context.createConstantSource();
     const playback: Playback = {
-      oscillator,
+      clock,
+      output,
       options,
       frame: 0,
       finished: false,
     };
     this.#playback = playback;
 
-    oscillator.onended = () => {
-      gain.disconnect();
+    clock.onended = () => {
+      output.disconnect();
       this.#finish(playback);
     };
-
-    oscillator.start(t0);
-    oscillator.stop(end);
+    clock.start(t0);
+    clock.stop(silentAt);
 
     // Report progress on each animation frame, only when the note changes.
     let current = -1;
@@ -84,14 +99,23 @@ export class MelodyPlayer {
    * Plays a single short note, e.g. when a key is pressed. Independent from
    * melody playback.
    */
-  async preview(frequency: number, seconds: number): Promise<void> {
+  async preview(
+    frequency: number,
+    seconds: number,
+    instrument: InstrumentId,
+  ): Promise<void> {
     const context = await this.#ensureContext();
+    const output = createOutput(context, VOLUME);
     const t0 = context.currentTime;
-    const { oscillator, gain } = createBuzzer(context, t0);
-    scheduleTone({ oscillator, gain }, frequency, t0, seconds, VOLUME);
-    oscillator.onended = () => gain.disconnect();
-    oscillator.start(t0);
-    oscillator.stop(t0 + seconds);
+    const silentAt = scheduleNote(
+      context,
+      output,
+      INSTRUMENTS[instrument],
+      frequency,
+      t0,
+      seconds,
+    );
+    setTimeout(() => output.disconnect(), (silentAt - t0) * 1000 + FADE_OUT_MS);
   }
 
   /** Stops the current melody. Does nothing if nothing plays. */
@@ -99,8 +123,11 @@ export class MelodyPlayer {
     this.#generation++;
     const playback = this.#playback;
     if (!playback) return;
-    playback.oscillator.stop();
-    // Notify synchronously: `onended` comes later, possibly after a new play().
+    playback.output.fadeOut();
+    playback.clock.onended = null;
+    playback.clock.stop();
+    setTimeout(() => playback.output.disconnect(), FADE_OUT_MS);
+    // Notify synchronously, so that a new play() can start right away.
     this.#finish(playback);
   }
 

@@ -18,7 +18,8 @@ Une application web installable (PWA) pour composer, écouter, partager et expor
 - Import et export du texte RTTTL
 - Catalogue de classiques du domaine public (Nokia Tune, Tetris, Lettre à Élise…)
 - Partage par lien
-- Export audio pour en faire sa sonnerie (Android et iPhone)
+- Choix de l'instrument : buzzer Nokia, console 8-bit, flûte, orgue, boîte à musique, piano électrique
+- Export audio pour en faire sa sonnerie (Android et iPhone), et export MIDI
 - Fonctionnement hors ligne
 - En français et en anglais (langue du navigateur par défaut, modifiable)
 
