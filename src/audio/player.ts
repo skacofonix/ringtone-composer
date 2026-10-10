@@ -50,24 +50,16 @@ export class MelodyPlayer {
     const t0 = context.currentTime + START_DELAY_SECONDS;
     const end = t0 + scheduleDuration(schedule);
 
-    const gain = context.createGain();
-    gain.gain.setValueAtTime(0, t0);
-    gain.connect(context.destination);
-
-    const oscillator = context.createOscillator();
-    oscillator.type = 'square';
-    oscillator.connect(gain);
-
+    const { oscillator, gain } = createBuzzer(context, t0);
     for (const note of schedule) {
       if (note.frequency === null) continue;
-      const start = t0 + note.start;
-      const stop = start + note.soundDuration;
-      const ramp = Math.min(RAMP_SECONDS, note.soundDuration / 4);
-      oscillator.frequency.setValueAtTime(note.frequency, start);
-      gain.gain.setValueAtTime(0, start);
-      gain.gain.linearRampToValueAtTime(VOLUME, start + ramp);
-      gain.gain.setValueAtTime(VOLUME, stop - ramp);
-      gain.gain.linearRampToValueAtTime(0, stop);
+      scheduleTone(
+        oscillator,
+        gain,
+        note.frequency,
+        t0 + note.start,
+        note.soundDuration,
+      );
     }
 
     const playback: Playback = {
@@ -99,6 +91,20 @@ export class MelodyPlayer {
     playback.frame = requestAnimationFrame(tick);
   }
 
+  /**
+   * Plays a single short note, e.g. when a key is pressed. Independent from
+   * melody playback.
+   */
+  async preview(frequency: number, seconds: number): Promise<void> {
+    const context = await this.#ensureContext();
+    const t0 = context.currentTime;
+    const { oscillator, gain } = createBuzzer(context, t0);
+    scheduleTone(oscillator, gain, frequency, t0, seconds);
+    oscillator.onended = () => gain.disconnect();
+    oscillator.start(t0);
+    oscillator.stop(t0 + seconds);
+  }
+
   /** Stops the current melody. Does nothing if nothing plays. */
   stop(): void {
     this.#generation++;
@@ -128,6 +134,38 @@ export class MelodyPlayer {
     }
     return this.#context;
   }
+}
+
+/** A silent square-wave oscillator, ready to receive scheduled tones. */
+function createBuzzer(
+  context: AudioContext,
+  t0: number,
+): { oscillator: OscillatorNode; gain: GainNode } {
+  const gain = context.createGain();
+  gain.gain.setValueAtTime(0, t0);
+  gain.connect(context.destination);
+
+  const oscillator = context.createOscillator();
+  oscillator.type = 'square';
+  oscillator.connect(gain);
+  return { oscillator, gain };
+}
+
+/** Schedules one tone, with short fades to avoid clicks. */
+function scheduleTone(
+  oscillator: OscillatorNode,
+  gain: GainNode,
+  frequency: number,
+  start: number,
+  seconds: number,
+): void {
+  const stop = start + seconds;
+  const ramp = Math.min(RAMP_SECONDS, seconds / 4);
+  oscillator.frequency.setValueAtTime(frequency, start);
+  gain.gain.setValueAtTime(0, start);
+  gain.gain.linearRampToValueAtTime(VOLUME, start + ramp);
+  gain.gain.setValueAtTime(VOLUME, stop - ramp);
+  gain.gain.linearRampToValueAtTime(0, stop);
 }
 
 /**

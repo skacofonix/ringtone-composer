@@ -41,19 +41,21 @@ Pas de backend. Tout tourne dans le navigateur. Le partage se fait par URL : le 
 ```
 src/
   core/          # TypeScript pur, AUCUNE dépendance au DOM ni à Svelte, testé unitairement
-    melody.ts      # modèle : Melody, Note (pitch, octave, durée, pointée), opérations d'édition
+    melody.ts      # modèle : Melody, Note = Tone | Rest, fréquences et durées
+    editor.ts      # opérations d'édition (curseur d'insertion, ajout, suppression, tempo)
     rtttl.ts       # parse / serialize RTTTL (aller-retour sans perte)
     nokia.ts       # notation Composer Nokia + machine à états du clavier T9
     share.ts       # encodage/décodage de la mélodie dans l'URL
   audio/         # dépend de Web Audio API
-    player.ts      # lecture temps réel, curseur de lecture
+    schedule.ts    # mélodie -> timeline (début, durée, fréquence), pur et testé
+    player.ts      # lecture temps réel (oscillateur carré), aperçu d'une note
     render.ts      # rendu hors ligne -> PCM (OfflineAudioContext)
     encoders/      # PCM -> WAV (maison), puis MP3 / M4R
   catalog/       # sonneries classiques en RTTTL (données)
   ui/
     retro/         # Nokia 3310 : LCD pixelisé + clavier T9
     modern/        # piano + éditeur de notes
-    shared/        # composants communs (lecteur, export, partage)
+    shared/        # état partagé (composition.svelte.ts), panneau RTTTL, export, partage
   App.svelte
   main.ts
 docs/            # spécifications (RTTTL, notation Nokia…)
@@ -61,7 +63,7 @@ docs/            # spécifications (RTTTL, notation Nokia…)
 
 **Règle d'or :** l'UI ne manipule jamais directement une chaîne RTTTL. Elle travaille sur le modèle `Melody` de `src/core`, et le RTTTL n'est qu'un format d'entrée/sortie. Toute logique non visuelle (navigation dans le clavier T9, changement d'octave, calcul de durée…) va dans `core/` et est testée.
 
-> L'arborescence ci-dessus est la cible ; seuls `core/melody.ts` et `core/rtttl.ts` existent pour l'instant. Mets cette section à jour quand la structure réelle évolue.
+> L'arborescence ci-dessus est la cible. Pas encore écrits : `nokia.ts`, `share.ts`, `render.ts`, `encoders/`, `catalog/`, `ui/retro/`. Mets cette section à jour quand la structure réelle évolue.
 >
 > Une première version en C# (Xamarin, 2015) existe : <https://github.com/skacofonix/RingtoneComposer>. Son dossier `RingtoneComposer.Core/Business/Converter/` est une bonne référence métier (RTTTL, notation Nokia, séquences de touches). Les points utiles sont repris dans `docs/`.
 
@@ -101,10 +103,10 @@ Avant de considérer une tâche terminée, `npm run verify` doit passer. La CI G
 
 ## Feuille de route
 
-1. Squelette Vite + Svelte + TS + PWA, tests en place
-2. `core/` : modèle `Melody`, parseur et sérialiseur RTTTL (+ tests)
-3. Lecteur audio (onde carrée)
-4. Mode moderne (piano)
+1. ✅ Squelette Vite + Svelte + TS + PWA, tests en place
+2. ✅ `core/` : modèle `Melody`, parseur et sérialiseur RTTTL (+ tests)
+3. ✅ Lecteur audio (onde carrée)
+4. ✅ Mode moderne (piano)
 5. Mode rétro Nokia 3310 (LCD + T9)
 6. Catalogue de classiques
 7. Partage par lien
