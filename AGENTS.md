@@ -1,0 +1,109 @@
+# AGENTS.md
+
+Guide de référence pour les agents de code (Claude Code, Codex, Copilot…) et les humains qui contribuent à **RingtoneComposer**.
+Ce fichier est la source de vérité ; `CLAUDE.md` l'importe.
+
+## Le projet
+
+Un compositeur de sonneries façon Nokia des années 2000 (3310), sous forme de **PWA** installable sur Android et iPhone.
+
+L'utilisateur peut :
+
+1. **Composer** une mélodie monophonique, note par note ;
+2. **L'écouter** avec un son « buzzer » (onde carrée) ;
+3. **Sauvegarder / importer / partager** la mélodie au format texte **RTTTL** (y compris via un lien) ;
+4. **Exporter un fichier audio** pour en faire sa sonnerie ;
+5. **Charger un classique** depuis un catalogue préchargé (Nokia Tune, Tetris…).
+
+Deux modes de saisie, branchés sur **le même modèle de mélodie** :
+
+- **Rétro** : un Nokia 3310 avec écran LCD monochrome pixelisé et clavier T9, qui reproduit le « Compositeur » d'origine ;
+- **Moderne** : un clavier de piano et une vue claire des notes et des durées.
+
+## Stack
+
+| Sujet | Choix |
+|---|---|
+| Build / dev server | [Vite](https://vite.dev) |
+| Langage | TypeScript (`strict`) |
+| UI | [Svelte 5](https://svelte.dev) (runes : `$state`, `$derived`, `$props`) |
+| PWA | `vite-plugin-pwa` (manifest + service worker, fonctionnement hors ligne) |
+| Audio | Web Audio API (`OscillatorNode` type `square`), `OfflineAudioContext` pour l'export |
+| Tests | Vitest |
+| Format | Prettier + `prettier-plugin-svelte` |
+| Gestionnaire de paquets | npm |
+| Node | voir `.nvmrc` |
+
+Pas de backend. Tout tourne dans le navigateur. Le partage se fait par URL : le RTTTL est encodé dans le fragment `#`.
+
+## Architecture
+
+```
+src/
+  core/          # TypeScript pur, AUCUNE dépendance au DOM ni à Svelte, testé unitairement
+    melody.ts      # modèle : Melody, Note (pitch, octave, durée, pointée), opérations d'édition
+    rtttl.ts       # parse / serialize RTTTL (aller-retour sans perte)
+    nokia.ts       # notation Composer Nokia + machine à états du clavier T9
+    share.ts       # encodage/décodage de la mélodie dans l'URL
+  audio/         # dépend de Web Audio API
+    player.ts      # lecture temps réel, curseur de lecture
+    render.ts      # rendu hors ligne -> PCM (OfflineAudioContext)
+    encoders/      # PCM -> WAV (maison), puis MP3 / M4R
+  catalog/       # sonneries classiques en RTTTL (données)
+  ui/
+    retro/         # Nokia 3310 : LCD pixelisé + clavier T9
+    modern/        # piano + éditeur de notes
+    shared/        # composants communs (lecteur, export, partage)
+  App.svelte
+  main.ts
+docs/            # spécifications (RTTTL, notation Nokia…)
+```
+
+**Règle d'or :** l'UI ne manipule jamais directement une chaîne RTTTL. Elle travaille sur le modèle `Melody` de `src/core`, et le RTTTL n'est qu'un format d'entrée/sortie. Toute logique non visuelle (navigation dans le clavier T9, changement d'octave, calcul de durée…) va dans `core/` et est testée.
+
+> L'arborescence ci-dessus est la cible. Le squelette Vite n'est pas encore généré au moment où ce fichier est écrit : mets cette section à jour quand la structure réelle évolue.
+
+## Commandes
+
+```bash
+npm install          # installer les dépendances
+npm run dev          # serveur de dev (ajouter --host pour tester sur un téléphone du réseau local)
+npm run build        # build de production dans dist/
+npm run preview      # servir le build (nécessaire pour tester le service worker / la PWA)
+npm test             # tests unitaires (Vitest)
+npm run check        # vérification de types (svelte-check + tsc)
+npm run format       # Prettier
+```
+
+Avant de considérer une tâche terminée : `npm run check` et `npm test` doivent passer.
+
+## Conventions
+
+- **Langue :** le code, les identifiants et les commentaires sont en anglais. La documentation (`docs/`, README) et les textes de l'UI sont en français pour l'instant.
+- TypeScript `strict`, pas de `any` sans justification en commentaire.
+- On préfère les fonctions pures et les données immuables dans `core/`. Pas de classes si une fonction suffit.
+- Composants Svelte petits, un composant par fichier, nommés en `PascalCase.svelte`.
+- CSS dans les composants (scoped). Variables CSS globales (`--lcd-bg`, `--lcd-ink`…) dans un seul fichier de thème.
+- Pas de nouvelle dépendance sans raison claire. Le projet doit rester compréhensible par un dev qui vient du vanilla JS.
+- Commits courts, à l'impératif, en anglais (`Add RTTTL parser`).
+
+## Points de domaine à connaître
+
+- **RTTTL** : voir [docs/rtttl.md](docs/rtttl.md). Le parseur doit tolérer les variantes réelles (espaces, majuscules, `#` avant ou après l'octave, valeurs par défaut absentes).
+- **Composer Nokia** : notation du type `8c2 8#d2 4g2`, avec un clavier T9 où les touches 1 à 7 donnent les notes et 0 le silence. Voir [docs/nokia-composer.md](docs/nokia-composer.md).
+- **Audio iOS** : l'`AudioContext` doit être créé ou repris (`resume()`) dans un geste utilisateur (tap), sinon aucun son. Le mode silencieux de l'iPhone peut couper le son web.
+- **Définir comme sonnerie** : impossible depuis le web. On exporte un fichier (MP3/OGG pour Android, `.m4r` pour iPhone, via GarageBand) et on guide l'utilisateur. Sur iOS, la durée max d'une sonnerie est d'environ 30 s.
+- **Polyphonie** : hors périmètre pour la v1, le RTTTL étant monophonique par nature. Piste envisagée : plusieurs voix RTTTL jouées en parallèle (comme les sonneries polyphoniques des Nokia suivants), sans casser le modèle mono.
+
+## Feuille de route
+
+1. Squelette Vite + Svelte + TS + PWA, tests en place
+2. `core/` : modèle `Melody`, parseur et sérialiseur RTTTL (+ tests)
+3. Lecteur audio (onde carrée)
+4. Mode moderne (piano)
+5. Mode rétro Nokia 3310 (LCD + T9)
+6. Catalogue de classiques
+7. Partage par lien
+8. Export audio (WAV → MP3 → M4R) + guide « définir comme sonnerie »
+9. Polyphonie (exploratoire)
+10. Plus tard : emballage Capacitor pour Android (bouton natif « Définir comme sonnerie », Play Store)
