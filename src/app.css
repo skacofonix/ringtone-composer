@@ -1,0 +1,37 @@
+:root {
+  /* Nokia 3310 palette */
+  --lcd-bg: #c7f0d8;
+  --lcd-ink: #43523d;
+  --phone-body: #1f2a44;
+
+  --bg: #f4f5f7;
+  --text: #1b1d22;
+  --muted: #5d6370;
+
+  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  color-scheme: light dark;
+  font: 16px/1.5 var(--sans);
+  color: var(--text);
+  background: var(--bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14161b;
+    --text: #e8eaee;
+    --muted: #9aa1ad;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+}
