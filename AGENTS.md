@@ -22,17 +22,17 @@ Deux modes de saisie, branchés sur **le même modèle de mélodie** :
 
 ## Stack
 
-| Sujet | Choix |
-|---|---|
-| Build / dev server | [Vite](https://vite.dev) |
-| Langage | TypeScript (`strict`) |
-| UI | [Svelte 5](https://svelte.dev) (runes : `$state`, `$derived`, `$props`) |
-| PWA | `vite-plugin-pwa` (manifest + service worker, fonctionnement hors ligne) |
-| Audio | Web Audio API (`OscillatorNode` type `square`), `OfflineAudioContext` pour l'export |
-| Tests | Vitest |
-| Format | Prettier + `prettier-plugin-svelte` |
-| Gestionnaire de paquets | npm |
-| Node | voir `.nvmrc` |
+| Sujet                   | Choix                                                                               |
+| ----------------------- | ----------------------------------------------------------------------------------- |
+| Build / dev server      | [Vite](https://vite.dev)                                                            |
+| Langage                 | TypeScript (`strict`)                                                               |
+| UI                      | [Svelte 5](https://svelte.dev) (runes : `$state`, `$derived`, `$props`)             |
+| PWA                     | `vite-plugin-pwa` (manifest + service worker, fonctionnement hors ligne)            |
+| Audio                   | Web Audio API (`OscillatorNode` type `square`), `OfflineAudioContext` pour l'export |
+| Tests                   | Vitest                                                                              |
+| Qualité                 | ESLint (`typescript-eslint`, `eslint-plugin-svelte`) + Prettier                     |
+| Gestionnaire de paquets | npm                                                                                 |
+| Node                    | voir `.nvmrc`                                                                       |
 
 Pas de backend. Tout tourne dans le navigateur. Le partage se fait par URL : le RTTTL est encodé dans le fragment `#`.
 
@@ -61,7 +61,9 @@ docs/            # spécifications (RTTTL, notation Nokia…)
 
 **Règle d'or :** l'UI ne manipule jamais directement une chaîne RTTTL. Elle travaille sur le modèle `Melody` de `src/core`, et le RTTTL n'est qu'un format d'entrée/sortie. Toute logique non visuelle (navigation dans le clavier T9, changement d'octave, calcul de durée…) va dans `core/` et est testée.
 
-> L'arborescence ci-dessus est la cible. Le squelette Vite n'est pas encore généré au moment où ce fichier est écrit : mets cette section à jour quand la structure réelle évolue.
+> L'arborescence ci-dessus est la cible ; seuls `core/melody.ts` et `core/rtttl.ts` existent pour l'instant. Mets cette section à jour quand la structure réelle évolue.
+>
+> Une première version en C# (Xamarin, 2015) existe : <https://github.com/skacofonix/RingtoneComposer>. Son dossier `RingtoneComposer.Core/Business/Converter/` est une bonne référence métier (RTTTL, notation Nokia, séquences de touches). Les points utiles sont repris dans `docs/`.
 
 ## Commandes
 
@@ -72,10 +74,12 @@ npm run build        # build de production dans dist/
 npm run preview      # servir le build (nécessaire pour tester le service worker / la PWA)
 npm test             # tests unitaires (Vitest)
 npm run check        # vérification de types (svelte-check + tsc)
-npm run format       # Prettier
+npm run lint         # ESLint
+npm run format       # Prettier (écrit les fichiers)
+npm run verify       # tout ce que vérifie la CI : format, lint, types, tests, build
 ```
 
-Avant de considérer une tâche terminée : `npm run check` et `npm test` doivent passer.
+Avant de considérer une tâche terminée, `npm run verify` doit passer. La CI GitHub Actions (`.github/workflows/ci.yml`) lance la même commande.
 
 ## Conventions
 

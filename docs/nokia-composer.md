@@ -16,22 +16,35 @@ Chaque note s'écrit `<durée><#?><note><octave>`, séparée par des espaces :
 - note : `c d e f g a b`, ou `-` pour un silence ;
 - octave : `1`, `2` ou `3`.
 
-**À valider :** la correspondance entre les octaves Nokia 1–3 et les octaves RTTTL (probablement 5–7, éventuellement 4–6).
+Correspondance avec RTTTL : **octave Nokia = octave RTTTL − 3**, donc Nokia 1 = RTTTL 4. C'est ce que faisait la version C# de 2015 (`NokiaComposerConverter`, `OffsetScale = 3`), qui acceptait les octaves Nokia 1 à 4. La position du point est incohérente dans l'ancien code : le parseur l'attendait avant l'octave (`8#f.2`), l'export l'écrivait après (`8#f2.`). On accepte les deux.
 
 ## Clavier T9
 
-| Touche | Action |
-|---|---|
-| `1` à `7` | insère `c d e f g a b` avec la durée et l'octave courantes |
-| `0` | insère un silence |
-| `8` | raccourcit la durée de la note courante (4 → 8 → 16…) |
-| `9` | allonge la durée de la note courante (4 → 2 → 1…) |
-| `*` | change l'octave de la note courante (1 → 2 → 3 → 1) |
-| `#` | ajoute ou retire le dièse de la note courante |
-| `C` / effacer | supprime la note avant le curseur |
-| flèches (navi-roller) | déplacent le curseur dans la partition |
+| Touche                | Action                                                     |
+| --------------------- | ---------------------------------------------------------- |
+| `1` à `7`             | insère `c d e f g a b` avec la durée et l'octave courantes |
+| `0`                   | insère un silence                                          |
+| `8`                   | raccourcit la durée de la note courante (4 → 8 → 16…)      |
+| `9`                   | allonge la durée de la note courante (4 → 2 → 1…)          |
+| `*`                   | monte l'octave de la note courante (1 → 2 → 3 → 1)         |
+| `#`                   | ajoute ou retire le dièse de la note courante              |
+| `C` / effacer         | supprime la note avant le curseur                          |
+| flèches (navi-roller) | déplacent le curseur dans la partition                     |
 
-**À valider :** comment obtenir une note pointée (appuis répétés sur `8` ou `9` ?) et quel est l'effet exact d'un appui long.
+**Note pointée :** obtenue par un **appui long** sur la touche de la note. La version de 2015 notait l'appui long avec des parenthèses : `(5)`.
+
+**À valider :** le comportement exact de `*` en fin de cycle (retour à 1 ou blocage), et la durée initiale sur un vrai 3310.
+
+### Séquences de touches
+
+Les magazines de l'époque publiaient les sonneries sous forme de touches à taper. La version de 2015 (`NokiaKeypressConverter`) savait les lire et les écrire, avec ces règles :
+
+- état de départ : durée 8, octave Nokia 1 ;
+- pour chaque note : la touche de la note (entre parenthèses si pointée), puis autant de `8` ou de `9` que nécessaire pour atteindre la durée voulue depuis la durée précédente, puis `#` si dièse, puis autant de `*` que nécessaire pour atteindre l'octave voulue ;
+- la durée et l'octave courantes **sont conservées** d'une note à la suivante ;
+- tempo par défaut du compositeur : 120 BPM.
+
+Exemple : `5 9 (6) 8 #**`
 
 ## Écran du 3310
 
