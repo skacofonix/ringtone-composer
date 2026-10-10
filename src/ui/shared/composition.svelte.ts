@@ -11,6 +11,7 @@ import {
   type Note,
 } from '../../core/melody';
 import { parseRtttl } from '../../core/rtttl';
+import { loadSavedMelody, saveMelody } from './storage';
 
 /** A key press should not ring for the whole length of a whole note. */
 const MAX_PREVIEW_SECONDS = 0.4;
@@ -20,7 +21,9 @@ const DEFAULT_RTTTL =
 
 export class Composition {
   /** Immutable editor state, replaced on each edit (hence `$state.raw`). */
-  editor = $state.raw<EditorState>(createEditor(parseRtttl(DEFAULT_RTTTL)));
+  editor = $state.raw<EditorState>(
+    createEditor(loadSavedMelody() ?? parseRtttl(DEFAULT_RTTTL)),
+  );
   playing = $state(false);
   /** Index of the note being played, -1 when nothing plays. */
   playingIndex = $state(-1);
@@ -34,13 +37,20 @@ export class Composition {
   /** Applies an editing operation from core/editor.ts. Stops playback. */
   edit(operation: (state: EditorState) => EditorState): void {
     this.stop();
-    this.editor = operation(this.editor);
+    this.#update(operation(this.editor));
   }
 
   /** Replaces the whole melody (import, catalog…). */
   load(melody: Melody): void {
     this.stop();
-    this.editor = createEditor(melody);
+    this.#update(createEditor(melody));
+  }
+
+  /** Every change goes through here, so that it is saved automatically. */
+  #update(editor: EditorState): void {
+    if (editor === this.editor) return;
+    this.editor = editor;
+    saveMelody(editor.melody);
   }
 
   togglePlay(): void {
