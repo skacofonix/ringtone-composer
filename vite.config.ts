@@ -5,6 +5,8 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vite.dev/config/
 export default defineConfig({
+  // GitHub Pages serves the app under /<repository>/ (set by the deploy workflow).
+  base: process.env.BASE_PATH ?? '/',
   plugins: [
     svelte(),
     VitePWA({
