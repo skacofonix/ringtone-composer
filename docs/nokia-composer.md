@@ -48,6 +48,8 @@ Magazines of the time published ringtones as sequences of keys to type. The 2015
 
 Example: `5 9 (6) 8 #**`
 
+The app reads and writes these sequences (menu **More → Nokia keys**, code in `src/core/keypress.ts`). Reading replays the keys on the same T9 state machine as the retro keypad. Writing produces the keys to type a melody on a real 3310; octaves out of the Composer range (RTTTL 7) are brought back to Nokia octave 3, and the app says so.
+
 ## The 3310 screen
 
 - Monochrome LCD, **84 × 48 pixels**, dark pixels on a backlit green-grey background.

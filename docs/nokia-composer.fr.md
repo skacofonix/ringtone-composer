@@ -48,6 +48,8 @@ Les magazines de l'époque publiaient les sonneries sous forme de touches à tap
 
 Exemple : `5 9 (6) 8 #**`
 
+L'application lit et écrit ces séquences (menu **Plus → Touches Nokia**, code dans `src/core/keypress.ts`). La lecture rejoue les touches sur la même machine à états T9 que le clavier rétro. L'écriture donne les touches pour taper une mélodie sur un vrai 3310 ; les octaves hors de portée du Compositeur (RTTTL 7) sont ramenées à l'octave Nokia 3, et l'application le signale.
+
 ## Écran du 3310
 
 - LCD monochrome **84 × 48 pixels**, avec des pixels sombres sur un fond vert-gris rétroéclairé.

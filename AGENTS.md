@@ -46,6 +46,8 @@ src/
     editor.ts      # editing operations (insertion cursor, add, delete, tempo)
     rtttl.ts       # RTTTL parse / serialize (lossless round trip)
     nokia.ts       # Nokia Composer notation + T9 keypad state machine
+    keypress.ts    # magazine key sequences (`5 9 (6) 8 #**`): read and write
+    history.ts     # undo / redo with grouping of continuous edits
     share.ts       # melody (and instrument) encoded in the URL
     midi.ts        # Standard MIDI File export (.mid)
   audio/         # depends on the Web Audio API
@@ -60,7 +62,7 @@ src/
   ui/
     retro/         # Nokia 3310: pixelated LCD + T9 keypad
     modern/        # piano + note editor
-    shared/        # shared state (composition.svelte.ts), bottom bar, "More" menu, dialogs (classics, share, ringtone, RTTTL, help), icons, theme, storage
+    shared/        # shared state (composition.svelte.ts), bottom bar, "More" menu, dialogs (classics, share, ringtone, RTTTL, Nokia keys, help), icons, theme, storage
   App.svelte
   main.ts
 docs/            # specifications (RTTTL, Nokia notation…), in English with French versions (*.fr.md)
@@ -93,7 +95,7 @@ Before considering a task done, `npm run verify` must pass. The GitHub Actions C
 ## Conventions
 
 - **Language:** code, identifiers and comments are in English. Documentation is in English, with a French version next to it (`README.md` / `README.fr.md`, `docs/x.md` / `docs/x.fr.md`): keep both in sync when you change one. `AGENTS.md` and `CLAUDE.md` exist in English only, so that agents have a single source of truth; so do the GitHub community files (`CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, issue and pull request templates in `.github/`).
-- **Screen layout (mobile first):** a minimal header (title + mode), a one-line melody summary (name · tempo · instrument) that opens the settings, the composition area, and a fixed bottom bar (Classics, Share, **Play** in the center, Ringtone, More). Rare actions (RTTTL text, help, clear all, theme, language) go into the "More" menu. Do not add permanent blocks back under the composition area.
+- **Screen layout (mobile first):** a minimal header (title + mode), a one-line melody summary (name · tempo · instrument) that opens the settings, the composition area, and a fixed bottom bar (Classics, Share, **Play** in the center, Ringtone, More). Undo / redo sit in the header. Rare actions (RTTTL text, Nokia keys, help, clear all, theme, language) go into the "More" menu. In modern mode, the bar under the score edits the current note (the one before the cursor), like keys 8 / 9 / * / # in retro mode. Do not add permanent blocks back under the composition area.
 - **Icons:** Lucide set copied into `ui/shared/Icon.svelte` (no dependency). The "Share" icon follows the platform convention (`ui/shared/platform.ts`).
 - **Interface texts:** never hard-coded in components. Add the key to `src/i18n/fr.ts` (the reference) **and** to `src/i18n/en.ts`: TypeScript and a test check that both dictionaries have the same keys. Use them through `i18n.t.…` (`src/i18n/i18n.svelte.ts`). The core (`core/`) contains no displayed text: for example, RTTTL parser errors carry a `code` that the UI translates. By default the app uses the browser language (French if it starts with `fr`, English otherwise); the user's choice is remembered.
 - **Colors:** CSS lives in the components (scoped). Colors **only through the tokens** of `src/app.css` (`--bg`, `--surface`, `--text`, `--accent`…), never hard-coded, so that the light and dark themes work. Three states: system (no `data-theme`), `data-theme="light"` and `data-theme="dark"` on `<html>` (`ui/shared/theme.svelte.ts`); the dark values exist twice in `app.css` and must stay in sync. Exception: the 3310 phone keeps its own colors in both themes.

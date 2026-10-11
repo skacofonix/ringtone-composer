@@ -27,6 +27,7 @@ export const en: Messages = {
   menu: {
     title: 'More',
     rtttl: 'RTTTL text',
+    keys: 'Nokia keys',
     help: 'Help',
     clearAll: 'Clear all',
     language: 'Language',
@@ -147,6 +148,24 @@ export const en: Messages = {
       'Big center key: play / stop.',
       'On a computer keyboard: digits, `*`, `#`, `Backspace`, arrows and `Enter`. Holding a key down = long press.',
     ],
+  },
+  keys: {
+    intro:
+      'The keys to type in the Composer of a real Nokia 3310 to get this melody. You can also paste a sequence published in a magazine to import it.',
+    legend:
+      '`1`–`7`: notes, `0`: rest, `(5)`: long press (dotted note), `8` / `9`: shorter / longer, `#`: sharp, `*`: octave.',
+    hint: 'Paste a sequence here to import it.',
+    approximated:
+      'Some notes are out of the 3310 range: they are brought back to the nearest octave.',
+    copy: 'Copy',
+    copied: 'Copied!',
+    copyFailed: 'Cannot copy: select the text',
+    error: (message, position) => `${message} (position ${position})`,
+    errors: {
+      invalidKey: (d) => `Unknown key “${d}”`,
+      invalidLongPress: (d) =>
+        `Invalid long press “${d}”: only (0) to (7) exist`,
+    },
   },
   catalog: {
     title: 'Classics',

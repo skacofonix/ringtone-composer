@@ -5,6 +5,7 @@
   import type { Composition } from './composition.svelte';
   import Dialog from './Dialog.svelte';
   import HelpDialog from './HelpDialog.svelte';
+  import KeysDialog from './KeysDialog.svelte';
   import Icon, { type IconName } from './Icon.svelte';
   import RtttlDialog from './RtttlDialog.svelte';
   import { theme, THEMES } from './theme.svelte';
@@ -20,6 +21,7 @@
 
   let rtttlOpen = $state(false);
   let helpOpen = $state(false);
+  let keysOpen = $state(false);
 
   /** Closes the menu, then opens the chosen dialog over the page. */
   function show(openDialog: () => void) {
@@ -50,6 +52,7 @@
 <Dialog bind:open title={t.title} placement="side">
   <nav>
     {@render item('text', t.rtttl, () => show(() => (rtttlOpen = true)))}
+    {@render item('keypad', t.keys, () => show(() => (keysOpen = true)))}
     {@render item('help', t.help, () => show(() => (helpOpen = true)))}
     {#if composition.melody.notes.length > 0}
       {@render item('trash', t.clearAll, clearAll, true)}
@@ -90,6 +93,7 @@
 
 <RtttlDialog bind:open={rtttlOpen} {composition} />
 <HelpDialog bind:open={helpOpen} />
+<KeysDialog bind:open={keysOpen} {composition} />
 
 <style>
   nav {

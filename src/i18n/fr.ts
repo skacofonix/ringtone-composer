@@ -29,6 +29,7 @@ export const fr = {
   menu: {
     title: 'Plus',
     rtttl: 'Texte RTTTL',
+    keys: 'Touches Nokia',
     help: 'Aide',
     clearAll: 'Tout effacer',
     language: 'Langue',
@@ -150,6 +151,25 @@ export const fr = {
       'Grande touche centrale : jouer / arrêter.',
       "Au clavier d'ordinateur : chiffres, `*`, `#`, `Retour arrière`, flèches et `Entrée`. Garder une touche enfoncée = appui long.",
     ],
+  },
+  keys: {
+    intro:
+      'Les touches à taper dans le Compositeur d’un vrai Nokia 3310 pour obtenir cette mélodie. Tu peux aussi coller une séquence publiée dans un magazine pour l’importer.',
+    legend:
+      '`1`–`7` : notes, `0` : silence, `(5)` : appui long (note pointée), `8` / `9` : plus court / plus long, `#` : dièse, `*` : octave.',
+    hint: 'Colle une séquence ici pour l’importer.',
+    approximated:
+      'Certaines notes sont hors de portée du 3310 : elles sont ramenées à l’octave la plus proche.',
+    copy: 'Copier',
+    copied: 'Copié !',
+    copyFailed: 'Copie impossible : sélectionne le texte',
+    error: (message: string, position: number) =>
+      `${message} (position ${position})`,
+    errors: {
+      invalidKey: (d: string) => `Touche inconnue « ${d} »`,
+      invalidLongPress: (d: string) =>
+        `Appui long invalide « ${d} » : seules (0) à (7) existent`,
+    },
   },
   catalog: {
     title: 'Classiques',
