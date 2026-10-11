@@ -15,6 +15,8 @@ Une application web installable (PWA) pour composer, écouter, partager et expor
 
 👉 **Essayer : <https://skacofonix.github.io/ringtone-composer/>** (installable sur l'écran d'accueil).
 
+![Mode rétro 3310 en thème sombre et mode piano moderne en thème clair](docs/images/screenshot.png)
+
 > 🚧 Projet en cours de (re)construction. Version précédente (C#, 2015) : <https://github.com/skacofonix/RingtoneComposer>
 
 ## Fonctionnalités
@@ -27,6 +29,7 @@ Une application web installable (PWA) pour composer, écouter, partager et expor
 - Choix de l'instrument : buzzer Nokia, console 8-bit, flûte, orgue, boîte à musique, piano électrique
 - Export audio pour en faire sa sonnerie (Android et iPhone), et export MIDI
 - Fonctionnement hors ligne
+- Thèmes clair et sombre (suit le système par défaut)
 - En français et en anglais (langue du navigateur par défaut, modifiable)
 
 ## Utiliser une sonnerie

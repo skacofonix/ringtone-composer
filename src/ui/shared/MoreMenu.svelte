@@ -7,6 +7,7 @@
   import HelpDialog from './HelpDialog.svelte';
   import Icon, { type IconName } from './Icon.svelte';
   import RtttlDialog from './RtttlDialog.svelte';
+  import { theme, THEMES } from './theme.svelte';
 
   interface Props {
     open: boolean;
@@ -55,18 +56,34 @@
     {/if}
   </nav>
 
-  <div class="language">
-    <span><Icon name="language" size={20} />{t.language}</span>
-    <div class="segmented" role="group" aria-label={t.language}>
-      {#each LOCALES as locale (locale)}
-        <button
-          type="button"
-          lang={locale}
-          aria-pressed={i18n.locale === locale}
-          title={LOCALE_NAMES[locale]}
-          onclick={() => i18n.setLocale(locale)}>{locale.toUpperCase()}</button
-        >
-      {/each}
+  <div class="settings">
+    <div class="setting">
+      <span><Icon name="theme" size={20} />{t.theme}</span>
+      <div class="segmented" role="group" aria-label={t.theme}>
+        {#each THEMES as value (value)}
+          <button
+            type="button"
+            aria-pressed={theme.current === value}
+            onclick={() => theme.set(value)}>{i18n.t.themes[value]}</button
+          >
+        {/each}
+      </div>
+    </div>
+
+    <div class="setting">
+      <span><Icon name="language" size={20} />{t.language}</span>
+      <div class="segmented" role="group" aria-label={t.language}>
+        {#each LOCALES as locale (locale)}
+          <button
+            type="button"
+            lang={locale}
+            aria-pressed={i18n.locale === locale}
+            title={LOCALE_NAMES[locale]}
+            onclick={() => i18n.setLocale(locale)}
+            >{locale.toUpperCase()}</button
+          >
+        {/each}
+      </div>
     </div>
   </div>
 </Dialog>
@@ -109,23 +126,29 @@
     color: var(--danger);
   }
 
-  .language {
+  .settings {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
+    flex-direction: column;
+    gap: 0.6rem;
     margin-top: auto;
     padding: 0.9rem 0.6rem 0.3rem;
     border-top: 1px solid var(--border);
   }
 
-  .language span {
+  .setting {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .setting span {
     display: flex;
     align-items: center;
     gap: 0.75rem;
   }
 
-  .language :global(svg) {
+  .setting :global(svg) {
     color: var(--accent);
   }
 

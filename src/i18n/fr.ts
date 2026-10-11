@@ -30,6 +30,12 @@ export const fr = {
     help: 'Aide',
     clearAll: 'Tout effacer',
     language: 'Langue',
+    theme: 'Thème',
+  },
+  themes: {
+    system: 'Auto',
+    light: 'Clair',
+    dark: 'Sombre',
   },
   summary: {
     edit: "Modifier le nom, le tempo et l'instrument",

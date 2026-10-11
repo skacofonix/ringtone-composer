@@ -28,6 +28,12 @@ export const en: Messages = {
     help: 'Help',
     clearAll: 'Clear all',
     language: 'Language',
+    theme: 'Theme',
+  },
+  themes: {
+    system: 'Auto',
+    light: 'Light',
+    dark: 'Dark',
   },
   summary: {
     edit: 'Edit the name, tempo and instrument',

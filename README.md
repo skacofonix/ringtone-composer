@@ -15,6 +15,8 @@ An installable web app (PWA) to compose, play, share and export ringtones in the
 
 👉 **Try it: <https://skacofonix.github.io/ringtone-composer/>** (can be installed on your home screen).
 
+![Retro 3310 mode in dark theme and modern piano mode in light theme](docs/images/screenshot.png)
+
 > 🚧 Being rebuilt from scratch. Previous version (C#, 2015): <https://github.com/skacofonix/RingtoneComposer>
 
 ## Features
@@ -27,6 +29,7 @@ An installable web app (PWA) to compose, play, share and export ringtones in the
 - Choice of instrument: Nokia buzzer, 8-bit console, flute, organ, music box, electric piano
 - Audio export to use as a ringtone (Android and iPhone), and MIDI export
 - Works offline
+- Light and dark themes (follows the system by default)
 - In English and French (browser language by default, can be changed)
 
 ## Use it as a ringtone

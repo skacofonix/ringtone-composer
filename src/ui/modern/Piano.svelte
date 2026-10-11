@@ -87,7 +87,9 @@
     margin-right: 1px;
     border-radius: 0 0 0.35rem 0.35rem;
     background: #fdfdfd;
-    box-shadow: inset 0 -0.4rem 0 #e2e4e8;
+    box-shadow:
+      inset 0 -0.4rem 0 #e2e4e8,
+      inset 0 0 0 1px #d0d4da;
     color: #6b7280;
     font-size: 0.7rem;
   }

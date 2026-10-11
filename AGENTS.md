@@ -98,7 +98,7 @@ Avant de considérer une tâche terminée, `npm run verify` doit passer. La CI G
 - TypeScript `strict`, pas de `any` sans justification en commentaire.
 - On préfère les fonctions pures et les données immuables dans `core/`. Pas de classes si une fonction suffit.
 - Composants Svelte petits, un composant par fichier, nommés en `PascalCase.svelte`.
-- CSS dans les composants (scoped). Variables CSS globales (`--lcd-bg`, `--lcd-ink`…) dans un seul fichier de thème.
+- CSS dans les composants (scoped). Couleurs **uniquement via les tokens** de `src/app.css` (`--bg`, `--surface`, `--text`, `--accent`…), jamais en dur, pour que les thèmes clair et sombre fonctionnent. Trois états : système (aucun `data-theme`), `data-theme="light"` et `data-theme="dark"` sur `<html>` (`ui/shared/theme.svelte.ts`) ; les valeurs sombres existent en double dans `app.css`, à garder synchronisées. Exception : le téléphone 3310 garde ses couleurs propres dans les deux thèmes.
 - Pas de nouvelle dépendance sans raison claire. Le projet doit rester compréhensible par un dev qui vient du vanilla JS.
 - Commits courts, à l'impératif, en anglais (`Add RTTTL parser`).
 
