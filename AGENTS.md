@@ -120,7 +120,7 @@ The project follows [Semantic Versioning](https://semver.org/); the version in `
 - **iOS audio:** the `AudioContext` must be created or resumed (`resume()`) inside a user gesture (tap), otherwise there is no sound. The iPhone silent switch can mute web audio (`navigator.audioSession` is set to `playback` to avoid it).
 - **Setting a ringtone:** impossible from the web. The app exports a WAV file and guides the user (Android settings, GarageBand on iPhone). On iOS a ringtone lasts at most about 30 s.
 - **Web Audio envelopes:** always anchor each stage with an explicit `setValueAtTime`. A `setTargetAtTime` right after a `linearRampToValueAtTime` diverges on some engines (tested: the level blows up). See `audio/synth.ts`.
-- **Haptics:** `ui/shared/haptics.svelte.ts` wraps `navigator.vibrate` (Android only: Safari on iPhone has no Vibration API, so the setting shows as unavailable there). Vibrate on `pointerdown`, inside the user gesture.
+- **Haptics:** `ui/shared/haptics.svelte.ts` uses `navigator.vibrate` on Android and, on iPhone (no Vibration API), the system tick of a hidden `<input type="checkbox" switch>` (iOS 18+, unofficial). Elsewhere the setting shows as unavailable. Trigger it on `pointerdown`, inside the user gesture.
 - **Testing audio:** `OfflineAudioContext` does not exist in Node, and headless Edge renders it poorly. To check a rendering, use `node-web-audio-api` in a temporary folder (outside the project dependencies) and import `src/audio/render.ts`.
 - **Polyphony:** out of scope for v1, RTTTL being monophonic by nature. Possible direction: several RTTTL voices played together (like the polyphonic ringtones of later Nokia phones), without breaking the mono model.
 

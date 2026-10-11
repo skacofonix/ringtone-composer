@@ -30,7 +30,7 @@ Une application web installable (PWA) pour composer, écouter, partager et expor
 - Export audio pour en faire sa sonnerie (Android et iPhone), et export MIDI
 - Fonctionnement hors ligne
 - Thèmes clair et sombre (suit le système par défaut)
-- Vibration à l'appui des touches (Android), désactivable
+- Retour haptique à l'appui des touches (Android, iPhone sous iOS 18+), désactivable
 - En français et en anglais (langue du navigateur par défaut, modifiable)
 
 ## Utiliser une sonnerie

@@ -48,7 +48,7 @@ describe('haptics', () => {
     expect(vibrate).toHaveBeenCalledTimes(1);
   });
 
-  it('does nothing where the Vibration API is missing (iPhone)', async () => {
+  it('does nothing without any haptic method', async () => {
     const { haptics } = await load();
     expect(haptics.supported).toBe(false);
     expect(() => haptics.play('tap')).not.toThrow();
@@ -59,5 +59,59 @@ describe('haptics', () => {
       throw new Error('blocked');
     });
     expect(() => haptics.play('long')).not.toThrow();
+  });
+});
+
+describe('haptics on iPhone (switch input technique)', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+  });
+
+  /** Fake DOM: counts the clicks on the hidden switch labels. */
+  async function loadIphone(maxTouchPoints = 5) {
+    const clicks: string[] = [];
+    class FakeInput {
+      type = '';
+      attributes = new Map<string, string>();
+      setAttribute(name: string, value: string) {
+        this.attributes.set(name, value);
+      }
+    }
+    Object.defineProperty(FakeInput.prototype, 'switch', { value: false });
+    vi.stubGlobal('HTMLInputElement', FakeInput);
+    vi.stubGlobal('document', {
+      createElement: (tag: string) =>
+        tag === 'input'
+          ? new FakeInput()
+          : {
+              style: {},
+              append: () => undefined,
+              click: () => clicks.push('tick'),
+              remove: () => undefined,
+            },
+      head: { append: () => undefined },
+    });
+    vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => {} });
+    vi.stubGlobal('navigator', { maxTouchPoints });
+    vi.resetModules();
+    const { haptics } = await import('./haptics.svelte');
+    return { haptics, clicks };
+  }
+
+  it('ticks once on a tap, twice on a long press', async () => {
+    vi.useFakeTimers();
+    const { haptics, clicks } = await loadIphone();
+    expect(haptics.supported).toBe(true);
+    haptics.play('tap');
+    expect(clicks).toHaveLength(1);
+    haptics.play('long');
+    vi.runAllTimers();
+    expect(clicks).toHaveLength(3);
+  });
+
+  it('is unavailable without a touch screen (Safari on a Mac)', async () => {
+    const { haptics } = await loadIphone(0);
+    expect(haptics.supported).toBe(false);
   });
 });

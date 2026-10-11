@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Added
+
+- **Haptic feedback on iPhone** (iOS 18 and later), through the system tick of a hidden switch input, since Safari has no Vibration API. Unofficial technique: it may stop working in a future iOS.
+
 ## [1.1.0] - 2026-10-11
 
 ### Added
