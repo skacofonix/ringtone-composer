@@ -10,6 +10,7 @@
   import { i18n } from '../../i18n/i18n.svelte';
   import type { Composition } from '../shared/composition.svelte';
   import DurationPicker from './DurationPicker.svelte';
+  import NoteEditor from './NoteEditor.svelte';
   import Piano from './Piano.svelte';
   import Score from './Score.svelte';
 
@@ -46,6 +47,8 @@
     playingIndex={composition.playingIndex}
     onselect={(cursor) => composition.edit((s) => setCursor(s, cursor))}
   />
+
+  <NoteEditor {composition} />
 
   <div class="toolbar">
     <button type="button" onclick={() => add(rest(duration, dotted))}

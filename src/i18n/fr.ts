@@ -101,11 +101,21 @@ export const fr = {
     },
     dotted: 'Note pointée',
     dottedTitle: 'Note pointée (durée × 1,5)',
+    edit: {
+      label: 'Modifier la note courante',
+      shorter: 'Plus courte',
+      longer: 'Plus longue',
+      dotted: 'Pointée',
+      sharp: 'Dièse',
+      octaveDown: 'Octave en dessous',
+      octaveUp: 'Octave au-dessus',
+    },
     help: [
       'Touche le piano pour ajouter la note au curseur.',
       'Choisis la durée des prochaines notes ; `•` pour une note pointée.',
       'Touche une note de la partition pour placer le curseur après elle, touche-la encore pour le placer avant.',
       '`⌫` efface la note avant le curseur.',
+      'La barre sous la partition modifie la note courante (celle avant le curseur) : durée `−` / `+`, pointée `•`, dièse `♯`, octave `↓` / `↑`.',
     ],
   },
   retro: {

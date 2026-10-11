@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Note } from '../../core/melody';
   import { i18n } from '../../i18n/i18n.svelte';
+  import { noteLength, noteName } from './format';
 
   interface Props {
     notes: readonly Note[];
@@ -23,17 +24,6 @@
     void cursor;
     caret?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   });
-
-  function name(note: Note): string {
-    return note.kind === 'tone'
-      ? `${note.pitch.toUpperCase()}${note.octave}`
-      : '—';
-  }
-
-  function length(note: Note): string {
-    const value = note.duration === 1 ? '1' : `1/${note.duration}`;
-    return note.dotted ? `${value} •` : value;
-  }
 </script>
 
 <div class="score" aria-label={i18n.t.modern.score}>
@@ -44,11 +34,12 @@
       type="button"
       class="note"
       class:rest={note.kind === 'rest'}
+      class:current={i === cursor - 1}
       class:playing={i === playingIndex}
       onclick={() => onselect(cursor === i + 1 ? i : i + 1)}
     >
-      <span class="name">{name(note)}</span>
-      <span class="length">{length(note)}</span>
+      <span class="name">{noteName(note)}</span>
+      <span class="length">{noteLength(note)}</span>
     </button>
     {#if cursor === i + 1}<span class="caret" bind:this={caret}></span>{/if}
   {:else}
@@ -92,6 +83,11 @@
 
   .note.rest {
     color: var(--muted);
+  }
+
+  /* The note edited by the bar below the score. */
+  .note.current {
+    box-shadow: inset 0 0 0 2px var(--accent);
   }
 
   .note.playing {

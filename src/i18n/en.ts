@@ -98,11 +98,21 @@ export const en: Messages = {
     },
     dotted: 'Dotted note',
     dottedTitle: 'Dotted note (length × 1.5)',
+    edit: {
+      label: 'Edit the current note',
+      shorter: 'Shorter',
+      longer: 'Longer',
+      dotted: 'Dotted',
+      sharp: 'Sharp',
+      octaveDown: 'Octave down',
+      octaveUp: 'Octave up',
+    },
     help: [
       'Tap the piano to add the note at the cursor.',
       'Choose the length of the next notes; `•` for a dotted note.',
       'Tap a note in the score to put the cursor after it, tap it again to put it before.',
       '`⌫` deletes the note before the cursor.',
+      'The bar under the score edits the current note (the one before the cursor): length `−` / `+`, dotted `•`, sharp `♯`, octave `↓` / `↑`.',
     ],
   },
   retro: {

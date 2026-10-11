@@ -112,3 +112,25 @@ export function toggleSharp(t: Tone): Tone {
     ? { ...t, pitch: pitch as PitchClass }
     : t;
 }
+
+export function toggleDotted<T extends Note>(note: T): T {
+  return { ...note, dotted: !note.dotted };
+}
+
+/** Octaves reachable from the editors (RTTTL octaves 4 to 7). */
+export const MIN_EDIT_OCTAVE = 4;
+export const MAX_EDIT_OCTAVE = 7;
+
+/** Moves a tone by whole octaves, clamped to the editable range. */
+export function shiftOctave(t: Tone, delta: number): Tone {
+  const octave = Math.min(
+    MAX_EDIT_OCTAVE,
+    Math.max(MIN_EDIT_OCTAVE, t.octave + delta),
+  );
+  return octave === t.octave ? t : { ...t, octave };
+}
+
+/** Whether `#` can apply: not on e, b or a rest. */
+export function canBeSharp(note: Note): boolean {
+  return note.kind === 'tone' && toggleSharp(note) !== note;
+}
