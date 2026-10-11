@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-11
+
 ### Added
 
 - **MP3 and M4R ringtone export**, besides WAV: MP3 for Android (about 4 times lighter), M4R for iPhone (AAC, through GarageBand or the Finder on a Mac). Encoders from Mediabunny (MPL-2.0), loaded only when exporting.
@@ -50,6 +52,7 @@ First version of the rewrite, as an installable web app (the 2015 C# version liv
 - **Light and dark themes**, following the system by default.
 - Installable **PWA** that works offline, deployed on GitHub Pages.
 
-[Unreleased]: https://github.com/skacofonix/ringtone-composer/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/skacofonix/ringtone-composer/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/skacofonix/ringtone-composer/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/skacofonix/ringtone-composer/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/skacofonix/ringtone-composer/releases/tag/v1.0.0
