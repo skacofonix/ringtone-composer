@@ -1,71 +1,73 @@
-# Le « Compositeur » des Nokia (3310 et contemporains)
+# The Nokia "Composer" (3310 and its contemporaries)
 
-Ce document sert de référence pour le **mode rétro**. Les points marqués **À valider** doivent être confirmés, par exemple avec un vrai 3310, un émulateur ou des vidéos d'époque, avant d'être figés dans le code.
+**English** · [Français](nokia-composer.fr.md)
 
-## Notation affichée à l'écran
+This document is the reference for the **retro mode**. Points marked **To be confirmed** should be checked, for example with a real 3310, an emulator or period videos, before being set in stone in the code.
 
-Chaque note s'écrit `<durée><#?><note><octave>`, séparée par des espaces :
+## On-screen notation
+
+Each note is written `<duration><#?><note><octave>`, separated by spaces:
 
 ```
 4c1 8#d2 16g2 2- 4.a1
 ```
 
-- durée : `1 2 4 8 16 32` ;
-- `.` après la durée : note pointée ;
-- `#` : dièse ;
-- note : `c d e f g a b`, ou `-` pour un silence ;
-- octave : `1`, `2` ou `3`.
+- duration: `1 2 4 8 16 32`;
+- `.` after the duration: dotted note;
+- `#`: sharp;
+- note: `c d e f g a b`, or `-` for a rest;
+- octave: `1`, `2` or `3`.
 
-Correspondance avec RTTTL : **octave Nokia = octave RTTTL − 3**, donc Nokia 1 = RTTTL 4. C'est ce que faisait la version C# de 2015 (`NokiaComposerConverter`, `OffsetScale = 3`), qui acceptait les octaves Nokia 1 à 4. La position du point est incohérente dans l'ancien code : le parseur l'attendait avant l'octave (`8#f.2`), l'export l'écrivait après (`8#f2.`). On accepte les deux.
+Mapping to RTTTL: **Nokia octave = RTTTL octave − 3**, so Nokia 1 = RTTTL 4. This is what the 2015 C# version did (`NokiaComposerConverter`, `OffsetScale = 3`), which accepted Nokia octaves 1 to 4. The position of the dot is inconsistent in the old code: the parser expected it before the octave (`8#f.2`), the export wrote it after (`8#f2.`). We accept both.
 
-## Clavier T9
+## T9 keypad
 
-| Touche                | Action                                                     |
-| --------------------- | ---------------------------------------------------------- |
-| `1` à `7`             | insère `c d e f g a b` avec la durée et l'octave courantes |
-| `0`                   | insère un silence                                          |
-| `8`                   | raccourcit la durée de la note courante (4 → 8 → 16…)      |
-| `9`                   | allonge la durée de la note courante (4 → 2 → 1…)          |
-| `*`                   | monte l'octave de la note courante (1 → 2 → 3 → 1)         |
-| `#`                   | ajoute ou retire le dièse de la note courante              |
-| `C` / effacer         | supprime la note avant le curseur                          |
-| flèches (navi-roller) | déplacent le curseur dans la partition                     |
+| Key                  | Action                                                      |
+| -------------------- | ----------------------------------------------------------- |
+| `1` to `7`           | insert `c d e f g a b` with the current duration and octave |
+| `0`                  | insert a rest                                               |
+| `8`                  | shorten the current note (4 → 8 → 16…)                      |
+| `9`                  | lengthen the current note (4 → 2 → 1…)                      |
+| `*`                  | raise the octave of the current note (1 → 2 → 3 → 1)        |
+| `#`                  | add or remove the sharp of the current note                 |
+| `C` / clear          | delete the note before the cursor                           |
+| arrows (navi-roller) | move the cursor in the score                                |
 
-**Note pointée :** obtenue par un **appui long** sur la touche de la note. La version de 2015 notait l'appui long avec des parenthèses : `(5)`.
+**Dotted note:** obtained with a **long press** on the note key. The 2015 version wrote the long press with parentheses: `(5)`.
 
-**À valider :** le comportement exact de `*` en fin de cycle (retour à 1 ou blocage), et la durée initiale sur un vrai 3310.
+**To be confirmed:** the exact behavior of `*` at the end of the cycle (back to 1 or stuck), and the initial duration on a real 3310.
 
-### Séquences de touches
+### Key sequences
 
-Les magazines de l'époque publiaient les sonneries sous forme de touches à taper. La version de 2015 (`NokiaKeypressConverter`) savait les lire et les écrire, avec ces règles :
+Magazines of the time published ringtones as sequences of keys to type. The 2015 version (`NokiaKeypressConverter`) could read and write them, with these rules:
 
-- état de départ : durée 8, octave Nokia 1 ;
-- pour chaque note : la touche de la note (entre parenthèses si pointée), puis autant de `8` ou de `9` que nécessaire pour atteindre la durée voulue depuis la durée précédente, puis `#` si dièse, puis autant de `*` que nécessaire pour atteindre l'octave voulue ;
-- la durée et l'octave courantes **sont conservées** d'une note à la suivante ;
-- tempo par défaut du compositeur : 120 BPM.
+- initial state: duration 8, Nokia octave 1;
+- for each note: the note key (in parentheses if dotted), then as many `8` or `9` as needed to reach the wanted duration from the previous one, then `#` if sharp, then as many `*` as needed to reach the wanted octave;
+- the current duration and octave **carry over** from one note to the next;
+- default tempo of the composer: 120 BPM.
 
-Exemple : `5 9 (6) 8 #**`
+Example: `5 9 (6) 8 #**`
 
-## Écran du 3310
+## The 3310 screen
 
-- LCD monochrome **84 × 48 pixels**, avec des pixels sombres sur un fond vert-gris rétroéclairé.
-- Le compositeur affiche la partition sur quelques lignes, avec un curseur clignotant.
-- Rendu prévu : un `<canvas>` en 84 × 48 mis à l'échelle sans lissage (`image-rendering: pixelated`), avec une petite police bitmap maison.
+- Monochrome LCD, **84 × 48 pixels**, dark pixels on a backlit green-grey background.
+- The composer shows the score on a few lines, with a blinking cursor.
+- Rendering in the app: a `<canvas>` paints an 84 × 48 image computed by `src/ui/retro/screen.ts`, with a home-made 5×7 bitmap font (`src/ui/retro/font.ts`).
 
-## Menu du compositeur (fidélité optionnelle)
+## Composer menu (optional fidelity)
 
-- **Jouer** ;
-- **Tempo** : valeurs prédéfinies ;
-- **Envoyer** : chez nous, partage par lien ;
-- **Effacer**, **Quitter**.
+- **Play**;
+- **Tempo**: predefined values;
+- **Send**: in our app, share by link;
+- **Clear**, **Exit**.
 
-## Choix d'implémentation (`src/core/nokia.ts`)
+## Implementation choices (`src/core/nokia.ts`)
 
-Ces choix sont à corriger si un vrai 3310 dit autre chose :
+To be corrected if a real 3310 says otherwise:
 
-- Notation affichée : durée, point, dièse, note, octave, par exemple `8.#f2`. Un silence s'écrit `16-` ou `2.-`.
-- Une nouvelle note reprend la durée de la note précédente et l'octave du dernier `Tone`. La toute première note part de `NOKIA_START` (durée 8, octave Nokia 1).
-- `#` sur `e` ou `b`, ou `*`/`#` sur un silence : sans effet.
-- `*` après l'octave 3 revient à 1. Une octave importée hors plage (RTTTL 7) revient aussi à 1.
-- Appui long sur `C` : efface tout, après confirmation (il n'y a pas d'annulation).
-- Clavier d'ordinateur : maintenir une touche enfoncée équivaut à un appui long, grâce à la répétition automatique du clavier.
+- On-screen notation: duration, dot, sharp, note, octave, for example `8.#f2`. A rest is written `16-` or `2.-`.
+- A new note takes the duration of the previous note and the octave of the last `Tone`. The very first note starts from `NOKIA_START` (duration 8, Nokia octave 1).
+- `#` on `e` or `b`, or `*`/`#` on a rest: no effect.
+- `*` after octave 3 goes back to 1. An imported octave out of range (RTTTL 7) also goes back to 1.
+- Long press on `C`: clears everything, after confirmation (there is no undo).
+- Computer keyboard: holding a key down acts as a long press, thanks to the keyboard auto-repeat.

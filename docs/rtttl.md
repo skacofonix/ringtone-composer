@@ -1,53 +1,55 @@
-# Format RTTTL
+# RTTTL format
 
-**RTTTL** (_Ring Tone Text Transfer Language_) est le format texte créé par Nokia pour décrire des sonneries monophoniques.
+**English** · [Français](rtttl.fr.md)
+
+**RTTTL** (_Ring Tone Text Transfer Language_) is the text format created by Nokia to describe monophonic ringtones.
 
 ## Structure
 
-Trois sections séparées par `:`.
+Three sections separated by `:`.
 
 ```
-<nom>:<valeurs par défaut>:<notes>
+<name>:<defaults>:<notes>
 Tetris:d=4,o=5,b=160:e6,8b,8c6,8d6,16e6,16d6,8c6,8b,a,8a,8c6,e6,8d6,8c6,b,8b,8c6,d6,e6,c6,a,2a
 ```
 
-### 1. Nom
+### 1. Name
 
-Le titre de la sonnerie. Historiquement limité à 10 caractères ; on l'accepte plus long en lecture et on le tronque éventuellement à l'export.
+The title of the ringtone. Historically limited to 10 characters; longer names are accepted when reading and may be truncated on export.
 
-### 2. Valeurs par défaut
+### 2. Defaults
 
-Une liste `clé=valeur` séparée par des virgules. Chaque clé est optionnelle.
+A comma-separated list of `key=value`. Every key is optional.
 
-| Clé | Signification                    | Valeurs                                    | Défaut si absent |
-| --- | -------------------------------- | ------------------------------------------ | ---------------- |
-| `d` | durée par défaut                 | 1, 2, 4, 8, 16, 32 (1 = ronde, 4 = noire…) | 4                |
-| `o` | octave par défaut                | 4 à 7 (on tolère 3 à 8)                    | 6                |
-| `b` | tempo en BPM (noires par minute) | 25 à 900 dans la spec d'origine            | 63               |
+| Key | Meaning                              | Values                                       | Default if missing |
+| --- | ------------------------------------ | -------------------------------------------- | ------------------ |
+| `d` | default duration                     | 1, 2, 4, 8, 16, 32 (1 = whole, 4 = quarter…) | 4                  |
+| `o` | default octave                       | 4 to 7 (3 to 8 tolerated)                    | 6                  |
+| `b` | tempo in BPM (quarter notes per min) | 25 to 900 in the original specification      | 63                 |
 
 ### 3. Notes
 
-Une liste de notes séparées par des virgules :
+A comma-separated list of notes:
 
 ```
-[durée] note [#] [.] [octave] [.]
+[duration] note [#] [.] [octave] [.]
 ```
 
-- `durée` : optionnelle, sinon `d`.
-- `note` : `c d e f g a b` ou `p` pour un silence (_pause_). Certains fichiers utilisent `h` pour `b`, notation allemande.
-- `#` : dièse. Les dièses valides sont `c# d# f# g# a#`.
-- `.` : note pointée (durée × 1,5). Selon les sources, le point apparaît avant ou après l'octave : il faut accepter les deux.
-- `octave` : optionnelle, sinon `o`.
+- `duration`: optional, otherwise `d`.
+- `note`: `c d e f g a b`, or `p` for a rest (_pause_). Some files use `h` for `b` (German notation).
+- `#`: sharp. The valid sharps are `c# d# f# g# a#`.
+- `.`: dotted note (length × 1.5). Depending on the source, the dot comes before or after the octave: both must be accepted.
+- `octave`: optional, otherwise `o`.
 
-## Calculs
+## Computations
 
-- Durée d'une note en ms : `(60000 / b) * (4 / durée)`, × 1,5 si pointée.
-- Fréquence : `440 * 2^((n - 69) / 12)` où `n` est le numéro MIDI. Ici on considère que l'octave RTTTL suit la convention scientifique (`a4` = 440 Hz). **À valider** sur des fichiers réels : certaines implémentations décalent d'une octave. La version C# de 2015 utilisait `a4` = 880 Hz. Ce choix tient dans une seule constante, `RTTTL_OCTAVE_SHIFT` dans `src/core/melody.ts`.
+- Length of a note in ms: `(60000 / b) * (4 / duration)`, × 1.5 if dotted.
+- Frequency: `440 * 2^((n - 69) / 12)` where `n` is the MIDI note number. Here the RTTTL octave is assumed to follow scientific pitch notation (`a4` = 440 Hz). **To be confirmed** with real files: some implementations are one octave apart. The 2015 C# version used `a4` = 880 Hz. This choice lives in a single constant, `RTTTL_OCTAVE_SHIFT` in `src/core/melody.ts`.
 
-## Règles pour notre parseur
+## Rules for our parser
 
-- Insensible à la casse ; ignorer les espaces et les retours à la ligne.
-- Accepter `nom:notes` sans section de valeurs par défaut, et le dièse avant la note (`#f`), deux variantes que gérait la version de 2015.
-- Tolérer les valeurs par défaut absentes ou partielles.
-- Signaler les erreurs avec la position du caractère fautif, plutôt que d'ignorer silencieusement.
-- Sérialisation canonique : choisir `d` et `o` les plus fréquents pour minimiser la taille, puis vérifier que `serialize(parse(x))` donne une mélodie équivalente.
+- Case insensitive; ignore spaces and line breaks.
+- Accept `name:notes` without a defaults section, and a sharp before the note (`#f`): two variants the 2015 version handled.
+- Tolerate missing or partial defaults.
+- Report errors with the position of the faulty character, rather than silently ignoring them.
+- Canonical serialization: pick the most frequent `d` and `o` to minimize the size, and check that `serialize(parse(x))` gives an equivalent melody.

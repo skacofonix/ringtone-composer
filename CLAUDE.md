@@ -1,8 +1,8 @@
 @AGENTS.md
 
-## Notes spécifiques à Claude Code
+## Notes specific to Claude Code
 
-- `AGENTS.md` (importé ci-dessus) est la source de vérité partagée avec les autres agents. Mets-le à jour plutôt que de dupliquer de l'information ici.
-- Environnement de dev : Windows (PowerShell / Git Bash), VS Code. Les fins de ligne sont normalisées en LF par `.gitattributes`.
-- Pour vérifier un changement d'UI, lance `npm run dev` et vérifie aussi en largeur mobile (~375 px) : l'app est pensée d'abord pour le téléphone.
-- On discute avec l'utilisateur en français.
+- `AGENTS.md` (imported above) is the source of truth shared with the other agents. Update it rather than duplicating information here.
+- Development environment: Windows (PowerShell / Git Bash), VS Code. Line endings are normalized to LF by `.gitattributes`.
+- To check a UI change, run `npm run dev` and also check at mobile width (~375 px): the app is designed for phones first.
+- Talk to the user in French.

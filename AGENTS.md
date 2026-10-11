@@ -1,127 +1,130 @@
 # AGENTS.md
 
-Guide de référence pour les agents de code (Claude Code, Codex, Copilot…) et les humains qui contribuent à **RingtoneComposer**.
-Ce fichier est la source de vérité ; `CLAUDE.md` l'importe.
+Reference guide for coding agents (Claude Code, Codex, Copilot…) and humans contributing to **RingtoneComposer**.
+This file is the source of truth; `CLAUDE.md` imports it.
 
-## Le projet
+## The project
 
-Un compositeur de sonneries façon Nokia des années 2000 (3310), sous forme de **PWA** installable sur Android et iPhone.
+A ringtone composer in the style of the early-2000s Nokia phones (3310), as an installable **PWA** for Android and iPhone.
 
-L'utilisateur peut :
+Users can:
 
-1. **Composer** une mélodie monophonique, note par note ;
-2. **L'écouter** avec un son « buzzer » (onde carrée) ;
-3. **Sauvegarder / importer / partager** la mélodie au format texte **RTTTL** (y compris via un lien) ;
-4. **Exporter un fichier audio** pour en faire sa sonnerie ;
-5. **Charger un classique** depuis un catalogue préchargé (Nokia Tune, Tetris…).
+1. **Compose** a monophonic melody, note by note;
+2. **Play** it with a "buzzer" sound (square wave) or another synthesized instrument;
+3. **Save / import / share** the melody as **RTTTL** text (including through a link);
+4. **Export an audio file** to use it as a ringtone, or a MIDI file;
+5. **Load a classic** from a preloaded catalog (Nokia Tune, Tetris…).
 
-Deux modes de saisie, branchés sur **le même modèle de mélodie** :
+Two input modes, plugged into **the same melody model**:
 
-- **Rétro** : un Nokia 3310 avec écran LCD monochrome pixelisé et clavier T9, qui reproduit le « Compositeur » d'origine ;
-- **Moderne** : un clavier de piano et une vue claire des notes et des durées.
+- **Retro**: a Nokia 3310 with a pixelated monochrome LCD and a T9 keypad, reproducing the original "Composer";
+- **Modern**: a piano keyboard and a clear view of notes and durations.
 
 ## Stack
 
-| Sujet                   | Choix                                                                               |
-| ----------------------- | ----------------------------------------------------------------------------------- |
-| Build / dev server      | [Vite](https://vite.dev)                                                            |
-| Langage                 | TypeScript (`strict`)                                                               |
-| UI                      | [Svelte 5](https://svelte.dev) (runes : `$state`, `$derived`, `$props`)             |
-| PWA                     | `vite-plugin-pwa` (manifest + service worker, fonctionnement hors ligne)            |
-| Audio                   | Web Audio API (`OscillatorNode` type `square`), `OfflineAudioContext` pour l'export |
-| Tests                   | Vitest                                                                              |
-| Qualité                 | ESLint (`typescript-eslint`, `eslint-plugin-svelte`) + Prettier                     |
-| Gestionnaire de paquets | npm                                                                                 |
-| Node                    | voir `.nvmrc`                                                                       |
+| Topic              | Choice                                                                          |
+| ------------------ | ------------------------------------------------------------------------------- |
+| Build / dev server | [Vite](https://vite.dev)                                                        |
+| Language           | TypeScript (`strict`)                                                           |
+| UI                 | [Svelte 5](https://svelte.dev) (runes: `$state`, `$derived`, `$props`)          |
+| PWA                | `vite-plugin-pwa` (manifest + service worker, works offline)                    |
+| Audio              | Web Audio API: synthesized instruments, `OfflineAudioContext` for the export    |
+| Tests              | Vitest                                                                          |
+| Quality            | ESLint (`typescript-eslint`, `eslint-plugin-svelte`) + Prettier                 |
+| Package manager    | npm                                                                             |
+| Node               | see `.nvmrc`                                                                    |
+| Hosting            | GitHub Pages, deployed by `.github/workflows/pages.yml` on every push to `main` |
 
-Pas de backend. Tout tourne dans le navigateur. Le partage se fait par URL : le RTTTL est encodé dans le fragment `#`.
+No backend. Everything runs in the browser. Sharing goes through the URL: the RTTTL is encoded in the `#` fragment.
 
 ## Architecture
 
 ```
 src/
-  core/          # TypeScript pur, AUCUNE dépendance au DOM ni à Svelte, testé unitairement
-    melody.ts      # modèle : Melody, Note = Tone | Rest, fréquences et durées
-    editor.ts      # opérations d'édition (curseur d'insertion, ajout, suppression, tempo)
-    rtttl.ts       # parse / serialize RTTTL (aller-retour sans perte)
-    nokia.ts       # notation Composer Nokia + machine à états du clavier T9
-    share.ts       # encodage/décodage de la mélodie (et de l'instrument) dans l'URL
-    midi.ts        # export fichier MIDI standard (.mid)
-  audio/         # dépend de Web Audio API
-    schedule.ts    # mélodie -> timeline (début, durée, fréquence), pur et testé
-    player.ts      # lecture temps réel (oscillateur carré), aperçu d'une note
-    instruments.ts # instruments synthétisés, décrits comme des données (partiels, ADSR, FM)
-    synth.ts       # une voix par note, commun à la lecture et à l'export
-    render.ts      # rendu hors ligne -> PCM (OfflineAudioContext), normalisé
-    encoders/      # PCM -> WAV (maison)
-  catalog/       # sonneries classiques en RTTTL (données), titres traduits
-  i18n/          # traductions : fr.ts (référence), en.ts, détection de la langue
+  core/          # pure TypeScript, NO dependency on the DOM or Svelte, unit tested
+    melody.ts      # model: Melody, Note = Tone | Rest, frequencies and durations
+    editor.ts      # editing operations (insertion cursor, add, delete, tempo)
+    rtttl.ts       # RTTTL parse / serialize (lossless round trip)
+    nokia.ts       # Nokia Composer notation + T9 keypad state machine
+    share.ts       # melody (and instrument) encoded in the URL
+    midi.ts        # Standard MIDI File export (.mid)
+  audio/         # depends on the Web Audio API
+    schedule.ts    # melody -> timeline (start, duration, frequency), pure and tested
+    player.ts      # real-time playback, single-note preview
+    instruments.ts # synthesized instruments described as data (partials, ADSR, FM)
+    synth.ts       # one voice per note, shared by playback and export
+    render.ts      # offline rendering -> PCM (OfflineAudioContext), normalized
+    encoders/      # PCM -> WAV (home-made)
+  catalog/       # classic ringtones in RTTTL (data), translated titles
+  i18n/          # translations: fr.ts (reference), en.ts, language detection
   ui/
-    retro/         # Nokia 3310 : LCD pixelisé + clavier T9
-    modern/        # piano + éditeur de notes
-    shared/        # état partagé (composition.svelte.ts), barre du bas, menu « Plus », fenêtres (classiques, partage, sonnerie, RTTTL, aide), icônes
+    retro/         # Nokia 3310: pixelated LCD + T9 keypad
+    modern/        # piano + note editor
+    shared/        # shared state (composition.svelte.ts), bottom bar, "More" menu, dialogs (classics, share, ringtone, RTTTL, help), icons, theme, storage
   App.svelte
   main.ts
-docs/            # spécifications (RTTTL, notation Nokia…)
+docs/            # specifications (RTTTL, Nokia notation…), in English with French versions (*.fr.md)
 ```
 
-**Règle d'or :** l'UI ne manipule jamais directement une chaîne RTTTL. Elle travaille sur le modèle `Melody` de `src/core`, et le RTTTL n'est qu'un format d'entrée/sortie. Toute logique non visuelle (navigation dans le clavier T9, changement d'octave, calcul de durée…) va dans `core/` et est testée.
+**Golden rule:** the UI never handles an RTTTL string directly. It works on the `Melody` model of `src/core`; RTTTL is only an input/output format. All non-visual logic (T9 keypad navigation, octave change, duration computation…) goes into `core/` and is tested.
 
-> L'arborescence ci-dessus reflète le code actuel. Le catalogue ne contient que des œuvres du domaine public : ne pas y ajouter de thèmes de films, de séries ou de jeux encore protégés.
+> The tree above reflects the current code; update it when the structure changes. The catalog only contains public-domain works: do not add film, TV or game themes that are still under copyright.
 >
-> `ui/retro/` contient aussi une police bitmap 5×7 (`font.ts`) et un rendu pur de l'écran 84×48 (`screen.ts`, testé) que `Lcd.svelte` se contente de peindre. `ui/shared/storage.ts` sauvegarde la mélodie (en RTTTL) et le mode dans `localStorage`. Mets cette section à jour quand la structure réelle évolue.
+> `ui/retro/` also contains a 5×7 bitmap font (`font.ts`) and a pure renderer of the 84×48 screen (`screen.ts`, tested) that `Lcd.svelte` only paints. `ui/shared/storage.ts` saves the melody (as RTTTL), the mode, the instrument, the language and the theme in `localStorage`.
 >
-> Une première version en C# (Xamarin, 2015) existe : <https://github.com/skacofonix/RingtoneComposer>. Son dossier `RingtoneComposer.Core/Business/Converter/` est une bonne référence métier (RTTTL, notation Nokia, séquences de touches). Les points utiles sont repris dans `docs/`.
+> A first version in C# (Xamarin, 2015) exists: <https://github.com/skacofonix/RingtoneComposer>. Its `RingtoneComposer.Core/Business/Converter/` folder is a good domain reference (RTTTL, Nokia notation, key sequences). The useful points are summarized in `docs/`.
 
-## Commandes
+## Commands
 
 ```bash
-npm install          # installer les dépendances
-npm run dev          # serveur de dev (ajouter --host pour tester sur un téléphone du réseau local)
-npm run build        # build de production dans dist/
-npm run preview      # servir le build (nécessaire pour tester le service worker / la PWA)
-npm test             # tests unitaires (Vitest)
-npm run check        # vérification de types (svelte-check + tsc)
+npm install          # install dependencies
+npm run dev          # dev server (add --host to test on a phone on the local network)
+npm run build        # production build in dist/
+npm run preview      # serve the build (needed to test the service worker / PWA)
+npm test             # unit tests (Vitest)
+npm run check        # type checking (svelte-check + tsc)
 npm run lint         # ESLint
-npm run format       # Prettier (écrit les fichiers)
-npm run verify       # tout ce que vérifie la CI : format, lint, types, tests, build
+npm run format       # Prettier (writes the files)
+npm run verify       # everything the CI checks: format, lint, types, tests, build
 ```
 
-Avant de considérer une tâche terminée, `npm run verify` doit passer. La CI GitHub Actions (`.github/workflows/ci.yml`) lance la même commande.
+Before considering a task done, `npm run verify` must pass. The GitHub Actions CI (`.github/workflows/ci.yml`) runs the same command.
 
 ## Conventions
 
-- **Langue :** le code, les identifiants et les commentaires sont en anglais. La documentation interne (`docs/`, AGENTS.md) est en français. Le README existe en deux versions à garder synchronisées : `README.md` (anglais, affiché par GitHub) et `README.fr.md`.
-- **Organisation de l'écran (mobile d'abord) :** un en-tête minimal (titre + mode), une ligne de résumé de la mélodie (nom · tempo · instrument) qui ouvre les réglages, la zone de composition, et une barre fixe en bas (Classiques, Partager, **Jouer** au centre, Sonnerie, Plus). Les actions rares (texte RTTTL, aide, tout effacer, langue) vont dans le menu « Plus ». Ne pas réajouter de blocs permanents sous la zone de composition.
-- **Icônes :** jeu Lucide copié dans `ui/shared/Icon.svelte` (pas de dépendance). L'icône « Partager » suit la convention du système (`ui/shared/platform.ts`).
-- **Textes de l'interface :** jamais en dur dans les composants. Ajoute la clé dans `src/i18n/fr.ts` (la référence) **et** dans `src/i18n/en.ts` : TypeScript et un test vérifient que les deux dictionnaires ont les mêmes clés. On les utilise via `i18n.t.…` (`src/i18n/i18n.svelte.ts`). Le cœur (`core/`) ne contient aucun texte affiché : par exemple, les erreurs du parseur RTTTL portent un `code`, que l'UI traduit. Par défaut, l'app prend la langue du navigateur (français si elle commence par `fr`, anglais sinon) ; le choix de l'utilisateur est mémorisé.
-- TypeScript `strict`, pas de `any` sans justification en commentaire.
-- On préfère les fonctions pures et les données immuables dans `core/`. Pas de classes si une fonction suffit.
-- Composants Svelte petits, un composant par fichier, nommés en `PascalCase.svelte`.
-- CSS dans les composants (scoped). Couleurs **uniquement via les tokens** de `src/app.css` (`--bg`, `--surface`, `--text`, `--accent`…), jamais en dur, pour que les thèmes clair et sombre fonctionnent. Trois états : système (aucun `data-theme`), `data-theme="light"` et `data-theme="dark"` sur `<html>` (`ui/shared/theme.svelte.ts`) ; les valeurs sombres existent en double dans `app.css`, à garder synchronisées. Exception : le téléphone 3310 garde ses couleurs propres dans les deux thèmes.
-- Pas de nouvelle dépendance sans raison claire. Le projet doit rester compréhensible par un dev qui vient du vanilla JS.
-- Commits courts, à l'impératif, en anglais (`Add RTTTL parser`).
+- **Language:** code, identifiers and comments are in English. Documentation is in English, with a French version next to it (`README.md` / `README.fr.md`, `docs/x.md` / `docs/x.fr.md`): keep both in sync when you change one. `AGENTS.md` and `CLAUDE.md` exist in English only, so that agents have a single source of truth.
+- **Screen layout (mobile first):** a minimal header (title + mode), a one-line melody summary (name · tempo · instrument) that opens the settings, the composition area, and a fixed bottom bar (Classics, Share, **Play** in the center, Ringtone, More). Rare actions (RTTTL text, help, clear all, theme, language) go into the "More" menu. Do not add permanent blocks back under the composition area.
+- **Icons:** Lucide set copied into `ui/shared/Icon.svelte` (no dependency). The "Share" icon follows the platform convention (`ui/shared/platform.ts`).
+- **Interface texts:** never hard-coded in components. Add the key to `src/i18n/fr.ts` (the reference) **and** to `src/i18n/en.ts`: TypeScript and a test check that both dictionaries have the same keys. Use them through `i18n.t.…` (`src/i18n/i18n.svelte.ts`). The core (`core/`) contains no displayed text: for example, RTTTL parser errors carry a `code` that the UI translates. By default the app uses the browser language (French if it starts with `fr`, English otherwise); the user's choice is remembered.
+- **Colors:** CSS lives in the components (scoped). Colors **only through the tokens** of `src/app.css` (`--bg`, `--surface`, `--text`, `--accent`…), never hard-coded, so that the light and dark themes work. Three states: system (no `data-theme`), `data-theme="light"` and `data-theme="dark"` on `<html>` (`ui/shared/theme.svelte.ts`); the dark values exist twice in `app.css` and must stay in sync. Exception: the 3310 phone keeps its own colors in both themes.
+- TypeScript `strict`, no `any` without a justifying comment.
+- Prefer pure functions and immutable data in `core/`. No classes when a function will do.
+- Small Svelte components, one per file, named `PascalCase.svelte`.
+- No new dependency without a clear reason. The project must stay understandable for a developer coming from vanilla JS.
+- Short commit messages, imperative mood, in English (`Add RTTTL parser`).
+- `main` is protected against force pushes and deletion (GitHub ruleset "Protect main").
 
-## Points de domaine à connaître
+## Domain notes
 
-- **RTTTL** : voir [docs/rtttl.md](docs/rtttl.md). Le parseur doit tolérer les variantes réelles (espaces, majuscules, `#` avant ou après l'octave, valeurs par défaut absentes).
-- **Composer Nokia** : notation du type `8c2 8#d2 4g2`, avec un clavier T9 où les touches 1 à 7 donnent les notes et 0 le silence. Voir [docs/nokia-composer.md](docs/nokia-composer.md).
-- **Audio iOS** : l'`AudioContext` doit être créé ou repris (`resume()`) dans un geste utilisateur (tap), sinon aucun son. Le mode silencieux de l'iPhone peut couper le son web.
-- **Définir comme sonnerie** : impossible depuis le web. On exporte un fichier (MP3/OGG pour Android, `.m4r` pour iPhone, via GarageBand) et on guide l'utilisateur. Sur iOS, la durée max d'une sonnerie est d'environ 30 s.
-- **Enveloppes Web Audio** : toujours ancrer chaque étape par un `setValueAtTime` explicite. Un `setTargetAtTime` qui suit directement un `linearRampToValueAtTime` diverge sur certains moteurs (testé : le niveau explose). Voir `audio/synth.ts`.
-- **Tester l'audio** : `OfflineAudioContext` n'existe pas dans Node et Edge headless le rend mal. Pour vérifier un rendu, utiliser `node-web-audio-api` dans un dossier temporaire (hors dépendances du projet) et importer `src/audio/render.ts`.
-- **Polyphonie** : hors périmètre pour la v1, le RTTTL étant monophonique par nature. Piste envisagée : plusieurs voix RTTTL jouées en parallèle (comme les sonneries polyphoniques des Nokia suivants), sans casser le modèle mono.
+- **RTTTL:** see [docs/rtttl.md](docs/rtttl.md). The parser must tolerate real-world variants (spaces, upper case, `#` before or after the note, dot before or after the octave, missing defaults).
+- **Nokia Composer:** notation like `8c2 8#d2 4g2`, with a T9 keypad where keys 1 to 7 give the notes and 0 a rest. See [docs/nokia-composer.md](docs/nokia-composer.md).
+- **iOS audio:** the `AudioContext` must be created or resumed (`resume()`) inside a user gesture (tap), otherwise there is no sound. The iPhone silent switch can mute web audio (`navigator.audioSession` is set to `playback` to avoid it).
+- **Setting a ringtone:** impossible from the web. The app exports a WAV file and guides the user (Android settings, GarageBand on iPhone). On iOS a ringtone lasts at most about 30 s.
+- **Web Audio envelopes:** always anchor each stage with an explicit `setValueAtTime`. A `setTargetAtTime` right after a `linearRampToValueAtTime` diverges on some engines (tested: the level blows up). See `audio/synth.ts`.
+- **Testing audio:** `OfflineAudioContext` does not exist in Node, and headless Edge renders it poorly. To check a rendering, use `node-web-audio-api` in a temporary folder (outside the project dependencies) and import `src/audio/render.ts`.
+- **Polyphony:** out of scope for v1, RTTTL being monophonic by nature. Possible direction: several RTTTL voices played together (like the polyphonic ringtones of later Nokia phones), without breaking the mono model.
 
-## Feuille de route
+## Roadmap
 
-1. ✅ Squelette Vite + Svelte + TS + PWA, tests en place
-2. ✅ `core/` : modèle `Melody`, parseur et sérialiseur RTTTL (+ tests)
-3. ✅ Lecteur audio (onde carrée)
-4. ✅ Mode moderne (piano)
-5. ✅ Mode rétro Nokia 3310 (LCD + T9), sauvegarde automatique
-6. ✅ Catalogue de classiques (domaine public)
-7. ✅ Partage par lien (RTTTL dans le fragment `#rtttl=`)
-8. ✅ Export audio WAV + guide « définir comme sonnerie » (Android, iPhone via GarageBand). Plus tard, si besoin : MP3 ou M4R.
-   8 bis. ✅ Choix de l'instrument (6 instruments synthétisés) + export MIDI. Étape suivante possible : vrais instruments General MIDI (SoundFonts, ex. `smplr`).
-9. Polyphonie (exploratoire)
-10. Plus tard : emballage Capacitor pour Android (bouton natif « Définir comme sonnerie », Play Store)
+1. ✅ Vite + Svelte + TS + PWA skeleton, tests in place
+2. ✅ `core/`: `Melody` model, RTTTL parser and serializer (+ tests)
+3. ✅ Audio player (square wave)
+4. ✅ Modern mode (piano)
+5. ✅ Retro Nokia 3310 mode (LCD + T9), autosave
+6. ✅ Catalog of classics (public domain)
+7. ✅ Share by link (RTTTL in the `#rtttl=` fragment)
+8. ✅ WAV audio export + "use as ringtone" guide (Android, iPhone through GarageBand). Later, if needed: MP3 or M4R.
+9. ✅ Instrument choice (6 synthesized instruments) + MIDI export. Possible next step: real General MIDI instruments (SoundFonts, e.g. `smplr`).
+10. ✅ English / French interface, light / dark theme, simplified layout (bottom bar + "More" menu)
+11. Polyphony (exploratory)
+12. Later: Capacitor wrapper for Android (native "Set as ringtone" button, Play Store)

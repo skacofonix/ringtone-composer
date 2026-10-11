@@ -51,7 +51,7 @@ npm run verify     # format, lint, types, tests and build, as in CI
 
 To test on your phone, run `npm run dev -- --host` and open the displayed IP address from a device on the same Wi-Fi network.
 
-Stack: Vite, TypeScript and Svelte 5, no backend. See [AGENTS.md](AGENTS.md) for the architecture and conventions (in French).
+Stack: Vite, TypeScript and Svelte 5, no backend. See [AGENTS.md](AGENTS.md) for the architecture and conventions, and [docs/](docs) for the RTTTL and Nokia Composer specifications.
 
 ## License
 
