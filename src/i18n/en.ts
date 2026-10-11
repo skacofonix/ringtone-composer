@@ -24,7 +24,6 @@ export const en: Messages = {
     more: 'More',
   },
   menu: {
-    title: 'More',
     rtttl: 'RTTTL text',
     keys: 'Nokia keys',
     help: 'Help',

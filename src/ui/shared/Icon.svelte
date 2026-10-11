@@ -19,6 +19,8 @@
     stop: '<rect x="5" y="5" width="14" height="14" rx="2" fill="currentColor"/>',
     undo: '<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5 5.5 5.5 0 0 1-5.5 5.5H11"/>',
     redo: '<path d="m15 14 5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5 5.5 5.5 0 0 0 9.5 20H13"/>',
+    arrowDown: '<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',
+    arrowUp: '<path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>',
     menu: '<path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/>',
     pencil:
       '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>',

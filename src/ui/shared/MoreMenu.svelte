@@ -48,7 +48,7 @@
   </button>
 {/snippet}
 
-<Dialog bind:open title={t.title} placement="side">
+<Dialog bind:open title="RingtoneComposer" placement="side">
   <nav>
     {@render item('text', t.rtttl, () => show(() => (rtttlOpen = true)))}
     {@render item('keypad', t.keys, () => show(() => (keysOpen = true)))}

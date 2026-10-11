@@ -26,7 +26,6 @@ export const fr = {
     more: 'Plus',
   },
   menu: {
-    title: 'Plus',
     rtttl: 'Texte RTTTL',
     keys: 'Touches Nokia',
     help: 'Aide',

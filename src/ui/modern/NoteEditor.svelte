@@ -12,6 +12,7 @@
   } from '../../core/melody';
   import { i18n } from '../../i18n/i18n.svelte';
   import type { Composition } from '../shared/composition.svelte';
+  import Icon from '../shared/Icon.svelte';
   import { durationLabel, noteName } from './format';
 
   interface Props {
@@ -71,14 +72,15 @@
       aria-label={t.octaveDown}
       disabled={note.kind !== 'tone' || note.octave <= MIN_EDIT_OCTAVE}
       onclick={() =>
-        update((n) => (n.kind === 'tone' ? shiftOctave(n, -1) : n))}>↓</button
+        update((n) => (n.kind === 'tone' ? shiftOctave(n, -1) : n))}
+      ><Icon name="arrowDown" size={16} /></button
     >
     <button
       type="button"
       aria-label={t.octaveUp}
       disabled={note.kind !== 'tone' || note.octave >= MAX_EDIT_OCTAVE}
       onclick={() => update((n) => (n.kind === 'tone' ? shiftOctave(n, 1) : n))}
-      >↑</button
+      ><Icon name="arrowUp" size={16} /></button
     >
   </div>
 {/if}
@@ -114,6 +116,8 @@
   }
 
   button {
+    display: grid;
+    place-items: center;
     min-width: 2.1rem;
     padding: 0.35rem 0.45rem;
     font: inherit;
@@ -124,6 +128,18 @@
     color: var(--text);
     cursor: pointer;
     touch-action: manipulation;
+  }
+
+  /* Very narrow phones: the current note is already outlined in the score. */
+  @media (max-width: 22.5rem) {
+    .name {
+      display: none;
+    }
+
+    button {
+      min-width: 1.9rem;
+      padding-inline: 0.3rem;
+    }
   }
 
   button[aria-pressed='true'] {

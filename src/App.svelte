@@ -15,6 +15,9 @@
 
   const MODES: Mode[] = ['retro', 'modern'];
 
+  /** App icon (the pixel note on an LCD), also used for the PWA icons. */
+  const LOGO = `${import.meta.env.BASE_URL}favicon.svg`;
+
   const composition = new Composition();
   let mode = $state<Mode>(
     readSetting('mode') === 'modern' ? 'modern' : 'retro',
@@ -67,7 +70,19 @@
 
 <main>
   <header>
-    <h1>RingtoneComposer</h1>
+    <!-- The name is in the "More" menu; kept here for screen readers and search engines. -->
+    <h1 class="visually-hidden">RingtoneComposer</h1>
+    <img class="logo" src={LOGO} alt="" width="32" height="32" />
+    <div class="modes" role="tablist" aria-label={i18n.t.app.modes}>
+      {#each MODES as id (id)}
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === id}
+          onclick={() => selectMode(id)}>{i18n.t.app[id]}</button
+        >
+      {/each}
+    </div>
     <div class="history">
       <button
         type="button"
@@ -85,16 +100,6 @@
         onclick={() => composition.redo()}
         ><Icon name="redo" size={20} /></button
       >
-    </div>
-    <div class="modes" role="tablist" aria-label={i18n.t.app.modes}>
-      {#each MODES as id (id)}
-        <button
-          type="button"
-          role="tab"
-          aria-selected={mode === id}
-          onclick={() => selectMode(id)}>{i18n.t.app[id]}</button
-        >
-      {/each}
     </div>
   </header>
 
@@ -121,24 +126,30 @@
     margin-bottom: 0.9rem;
   }
 
+  /* One line on phones: icon, mode tabs, then undo / redo on the right. */
   header {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem 1rem;
+    gap: 0.6rem;
     margin-bottom: 1rem;
   }
 
-  h1 {
-    flex: 1;
-    margin: 0;
-    font-size: 1.3rem;
+  .logo {
+    flex-shrink: 0;
+    border-radius: 0.45rem;
+  }
+
+  /* Very narrow phones: the icon gives way to the tabs and undo / redo. */
+  @media (max-width: 22.5rem) {
+    .logo {
+      display: none;
+    }
   }
 
   .history {
     display: flex;
     gap: 0.25rem;
+    margin-left: auto;
   }
 
   .history button {
@@ -175,6 +186,7 @@
     background: transparent;
     color: var(--muted);
     cursor: pointer;
+    white-space: nowrap;
   }
 
   .modes button[aria-selected='true'] {
