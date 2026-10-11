@@ -1,45 +1,55 @@
 # RingtoneComposer 📟
 
-Compose tes sonneries comme sur un Nokia 3310, directement depuis ton smartphone.
+**English** · [Français](README.fr.md)
 
-Une application web installable (PWA) pour composer, écouter, partager et exporter des sonneries au format **RTTTL**. Deux modes :
+[![CI](https://github.com/skacofonix/ringtone-composer/actions/workflows/ci.yml/badge.svg)](https://github.com/skacofonix/ringtone-composer/actions/workflows/ci.yml)
+[![Deploy](https://github.com/skacofonix/ringtone-composer/actions/workflows/pages.yml/badge.svg)](https://github.com/skacofonix/ringtone-composer/actions/workflows/pages.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-- **Rétro** : l'écran LCD et le clavier T9 du Nokia 3310, comme en 2000 ;
-- **Moderne** : un clavier de piano, plus simple pour composer.
+Compose ringtones like on a Nokia 3310, right from your smartphone.
 
-👉 **Essayer : <https://skacofonix.github.io/ringtone-composer/>** (installable sur l'écran d'accueil).
+An installable web app (PWA) to compose, play, share and export ringtones in the **RTTTL** format. Two input modes:
 
-> 🚧 Projet en cours de (re)construction. Version précédente : <https://github.com/skacofonix/RingtoneComposer>
+- **Retro**: the LCD screen and T9 keypad of the Nokia 3310, just like in 2000;
+- **Modern**: a piano keyboard, easier for composing.
 
-## Fonctionnalités
+👉 **Try it: <https://skacofonix.github.io/ringtone-composer/>** (can be installed on your home screen).
 
-- Composition note par note, en mode rétro ou moderne
-- Lecture avec un son « buzzer » authentique
-- Import et export du texte RTTTL
-- Catalogue de classiques du domaine public (Nokia Tune, Tetris, Lettre à Élise…)
-- Partage par lien
-- Choix de l'instrument : buzzer Nokia, console 8-bit, flûte, orgue, boîte à musique, piano électrique
-- Export audio pour en faire sa sonnerie (Android et iPhone), et export MIDI
-- Fonctionnement hors ligne
-- En français et en anglais (langue du navigateur par défaut, modifiable)
+> 🚧 Being rebuilt from scratch. Previous version (C#, 2015): <https://github.com/skacofonix/RingtoneComposer>
 
-## Développement
+## Features
 
-Prérequis : Node.js (version dans `.nvmrc`).
+- Note-by-note composition, in retro or modern mode
+- Playback with an authentic "buzzer" sound
+- RTTTL text import and export
+- Catalog of public-domain classics (Nokia Tune, Tetris, Für Elise…)
+- Share by link
+- Choice of instrument: Nokia buzzer, 8-bit console, flute, organ, music box, electric piano
+- Audio export to use as a ringtone (Android and iPhone), and MIDI export
+- Works offline
+- In English and French (browser language by default, can be changed)
+
+## Use it as a ringtone
+
+A web app cannot change the phone's ringtone by itself. The app exports a WAV file, then:
+
+- **Android**: Settings → Sound → Phone ringtone → pick the downloaded file;
+- **iPhone**: import the file in GarageBand, then Share → Ringtone (step-by-step guide in the app).
+
+## Development
+
+Requirements: Node.js (version in `.nvmrc`).
 
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test
+npm run verify     # format, lint, types, tests and build, as in CI
 ```
 
-Pour tester sur ton téléphone, lance `npm run dev -- --host` et ouvre l'adresse IP affichée depuis un appareil du même réseau Wi-Fi.
+To test on your phone, run `npm run dev -- --host` and open the displayed IP address from a device on the same Wi-Fi network.
 
-Stack : Vite, TypeScript et Svelte 5. Voir [AGENTS.md](AGENTS.md) pour l'architecture et les conventions.
+Stack: Vite, TypeScript and Svelte 5, no backend. See [AGENTS.md](AGENTS.md) for the architecture and conventions (in French).
 
-## Utiliser une sonnerie
+## License
 
-Une application web ne peut pas changer la sonnerie du téléphone elle-même. L'application exporte un fichier audio, puis :
-
-- **Android** : Paramètres → Son → Sonnerie → choisir le fichier téléchargé ;
-- **iPhone** : importer le fichier `.m4r` via GarageBand (Partager → Sonnerie), ou via le Finder sur Mac.
+[MIT](LICENSE)
