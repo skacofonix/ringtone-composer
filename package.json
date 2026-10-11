@@ -1,8 +1,22 @@
 {
   "name": "ringtone-composer",
+  "version": "1.0.0",
+  "description": "Nokia 3310-style ringtone composer (RTTTL), as an installable PWA",
+  "homepage": "https://skacofonix.github.io/ringtone-composer/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skacofonix/ringtone-composer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/skacofonix/ringtone-composer/issues"
+  },
+  "license": "MIT",
+  "author": "Skacofonix",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -34,10 +48,5 @@
     "vite": "^8.3.0",
     "vite-plugin-pwa": "^2.0.0",
     "vitest": "^5.0.3"
-  },
-  "description": "Nokia 3310-style ringtone composer (RTTTL), as an installable PWA",
-  "license": "MIT",
-  "engines": {
-    "node": ">=24"
   }
 }

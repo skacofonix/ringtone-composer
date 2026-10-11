@@ -89,6 +89,15 @@
       </div>
     </div>
   </div>
+
+  <p class="about">
+    {t.version(__APP_VERSION__)} ·
+    <a
+      href="https://github.com/skacofonix/ringtone-composer/releases"
+      target="_blank"
+      rel="noopener">{t.releases}</a
+    >
+  </p>
 </Dialog>
 
 <RtttlDialog bind:open={rtttlOpen} {composition} />
@@ -153,6 +162,17 @@
   }
 
   .setting :global(svg) {
+    color: var(--accent);
+  }
+
+  .about {
+    margin: 0.75rem 0 0;
+    padding: 0 0.6rem;
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+
+  .about a {
     color: var(--accent);
   }
 

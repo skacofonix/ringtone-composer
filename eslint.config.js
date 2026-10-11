@@ -15,7 +15,12 @@ export default defineConfig(
   svelte.configs.prettier,
   {
     languageOptions: {
-      globals: { ...globals.browser, ...globals.node },
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+        // Injected at build time by vite.config.ts (see src/globals.d.ts).
+        __APP_VERSION__: 'readonly',
+      },
     },
   },
   {

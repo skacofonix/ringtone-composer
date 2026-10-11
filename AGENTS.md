@@ -94,7 +94,7 @@ Before considering a task done, `npm run verify` must pass. The GitHub Actions C
 
 ## Conventions
 
-- **Language:** code, identifiers and comments are in English. Documentation is in English, with a French version next to it (`README.md` / `README.fr.md`, `docs/x.md` / `docs/x.fr.md`): keep both in sync when you change one. `AGENTS.md` and `CLAUDE.md` exist in English only, so that agents have a single source of truth; so do the GitHub community files (`CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, issue and pull request templates in `.github/`).
+- **Language:** code, identifiers and comments are in English. Documentation is in English, with a French version next to it (`README.md` / `README.fr.md`, `docs/x.md` / `docs/x.fr.md`): keep both in sync when you change one. `AGENTS.md` and `CLAUDE.md` exist in English only, so that agents have a single source of truth; so do the GitHub community files (`CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, issue and pull request templates in `.github/`) and `CHANGELOG.md`.
 - **Screen layout (mobile first):** a minimal header (title + mode), a one-line melody summary (name · tempo · instrument) that opens the settings, the composition area, and a fixed bottom bar (Classics, Share, **Play** in the center, Ringtone, More). Undo / redo sit in the header. Rare actions (RTTTL text, Nokia keys, help, clear all, theme, language) go into the "More" menu. In modern mode, the bar under the score edits the current note (the one before the cursor), like keys 8 / 9 / * / # in retro mode. Do not add permanent blocks back under the composition area.
 - **Icons:** Lucide set copied into `ui/shared/Icon.svelte` (no dependency). The "Share" icon follows the platform convention (`ui/shared/platform.ts`).
 - **Interface texts:** never hard-coded in components. Add the key to `src/i18n/fr.ts` (the reference) **and** to `src/i18n/en.ts`: TypeScript and a test check that both dictionaries have the same keys. Use them through `i18n.t.…` (`src/i18n/i18n.svelte.ts`). The core (`core/`) contains no displayed text: for example, RTTTL parser errors carry a `code` that the UI translates. By default the app uses the browser language (French if it starts with `fr`, English otherwise); the user's choice is remembered.
@@ -105,6 +105,13 @@ Before considering a task done, `npm run verify` must pass. The GitHub Actions C
 - No new dependency without a clear reason. The project must stay understandable for a developer coming from vanilla JS.
 - Short commit messages, imperative mood, in English (`Add RTTTL parser`).
 - `main` is protected against force pushes and deletion (GitHub ruleset "Protect main").
+
+## Releases
+
+The project follows [Semantic Versioning](https://semver.org/); the version in `package.json` is shown in the app (menu "More", injected as `__APP_VERSION__` by `vite.config.ts`).
+
+- Every user-visible change adds a line under `## [Unreleased]` in `CHANGELOG.md`.
+- To release: move the `Unreleased` lines to a new `## [x.y.z] - date` section, update the links at the bottom, set the same version in `package.json` (`npm version x.y.z --no-git-tag-version`), commit, tag `vx.y.z` and create the GitHub release with that changelog section (`gh release create vx.y.z --notes-file …`).
 
 ## Domain notes
 

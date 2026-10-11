@@ -32,6 +32,8 @@ export const en: Messages = {
     clearAll: 'Clear all',
     language: 'Language',
     theme: 'Theme',
+    version: (version) => `Version ${version}`,
+    releases: 'What’s new',
   },
   themes: {
     system: 'Auto',

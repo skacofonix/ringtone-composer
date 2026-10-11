@@ -34,6 +34,8 @@ export const fr = {
     clearAll: 'Tout effacer',
     language: 'Langue',
     theme: 'Thème',
+    version: (version: string) => `Version ${version}`,
+    releases: 'Nouveautés',
   },
   themes: {
     system: 'Auto',
