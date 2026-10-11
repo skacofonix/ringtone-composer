@@ -3,12 +3,12 @@
   import { isInstrumentId } from './audio/instruments';
   import { readSharedLink } from './core/share';
   import { i18n } from './i18n/i18n.svelte';
-  import { LOCALE_NAMES, LOCALES, isLocale } from './i18n/locale';
   import ModernComposer from './ui/modern/ModernComposer.svelte';
   import RetroComposer from './ui/retro/RetroComposer.svelte';
   import { Composition } from './ui/shared/composition.svelte';
+  import BottomBar from './ui/shared/BottomBar.svelte';
+  import MelodySummary from './ui/shared/MelodySummary.svelte';
   import { readSetting, writeSetting } from './ui/shared/storage';
-  import Toolbar from './ui/shared/Toolbar.svelte';
 
   type Mode = 'retro' | 'modern';
 
@@ -52,34 +52,19 @@
 <main>
   <header>
     <h1>RingtoneComposer</h1>
-    <div class="controls">
-      <div class="modes" role="tablist" aria-label={i18n.t.app.modes}>
-        {#each MODES as id (id)}
-          <button
-            type="button"
-            role="tab"
-            aria-selected={mode === id}
-            onclick={() => selectMode(id)}>{i18n.t.app[id]}</button
-          >
-        {/each}
-      </div>
-      <select
-        class="language"
-        aria-label={i18n.t.app.language}
-        value={i18n.locale}
-        onchange={(e) => {
-          const locale = e.currentTarget.value;
-          if (isLocale(locale)) i18n.setLocale(locale);
-        }}
-      >
-        {#each LOCALES as locale (locale)}
-          <option value={locale}>{LOCALE_NAMES[locale]}</option>
-        {/each}
-      </select>
+    <div class="modes" role="tablist" aria-label={i18n.t.app.modes}>
+      {#each MODES as id (id)}
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === id}
+          onclick={() => selectMode(id)}>{i18n.t.app[id]}</button
+        >
+      {/each}
     </div>
   </header>
 
-  <Toolbar {composition} />
+  <MelodySummary {composition} />
 
   {#if mode === 'retro'}
     <RetroComposer {composition} />
@@ -88,15 +73,18 @@
   {/if}
 </main>
 
+<BottomBar {composition} />
+
 <style>
   main {
     max-width: 40rem;
     margin: 0 auto;
-    padding: 1rem 1rem 2rem;
+    /* Room for the fixed bottom bar and its raised play button. */
+    padding: 1rem 1rem calc(6rem + env(safe-area-inset-bottom, 0px));
   }
 
-  main > :global(.toolbar) {
-    margin-bottom: 1rem;
+  main > :global(.summary) {
+    margin-bottom: 0.9rem;
   }
 
   header {
@@ -111,22 +99,6 @@
   h1 {
     margin: 0;
     font-size: 1.3rem;
-  }
-
-  .controls {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .language {
-    padding: 0.4rem 0.3rem;
-    font: inherit;
-    font-size: 0.9rem;
-    border: 1px solid var(--border);
-    border-radius: 0.5rem;
-    background: var(--surface);
-    color: var(--text);
   }
 
   .modes {

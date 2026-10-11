@@ -6,12 +6,14 @@
   } from '../../core/rtttl';
   import { i18n } from '../../i18n/i18n.svelte';
   import type { Composition } from './composition.svelte';
+  import Dialog from './Dialog.svelte';
 
   interface Props {
+    open: boolean;
     composition: Composition;
   }
 
-  let { composition }: Props = $props();
+  let { open = $bindable(), composition }: Props = $props();
 
   /** Text being typed by the user; `null` shows the melody's RTTTL. */
   let draft = $state<string | null>(null);
@@ -54,11 +56,10 @@
   }
 </script>
 
-<details>
-  <summary>{t.summary}</summary>
+<Dialog bind:open title={i18n.t.menu.rtttl}>
   <textarea
     aria-label="RTTTL"
-    rows="4"
+    rows="6"
     spellcheck="false"
     value={text}
     {oninput}
@@ -74,25 +75,12 @@
       >{copyStatus ? t[copyStatus] : t.copy}</button
     >
   </div>
-</details>
+</Dialog>
 
 <style>
-  details {
-    border: 1px solid var(--border);
-    border-radius: 0.6rem;
-    background: var(--surface);
-    padding: 0.6rem 0.75rem;
-  }
-
-  summary {
-    cursor: pointer;
-    font-weight: 600;
-  }
-
   textarea {
     display: block;
     width: 100%;
-    margin-top: 0.6rem;
     padding: 0.5rem;
     font: 0.85rem var(--mono);
     border: 1px solid var(--border);

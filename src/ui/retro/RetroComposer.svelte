@@ -3,8 +3,6 @@
   import { pressKey, type NokiaKey } from '../../core/nokia';
   import { i18n } from '../../i18n/i18n.svelte';
   import type { Composition } from '../shared/composition.svelte';
-  import MelodySettings from '../shared/MelodySettings.svelte';
-  import RtttlPanel from '../shared/RtttlPanel.svelte';
   import Lcd from './Lcd.svelte';
   import { pressable } from './press';
   import { renderComposer } from './screen';
@@ -30,6 +28,17 @@
     '0',
     '#',
   ] as const;
+
+  /** Note letters printed on the keys; the other keys are explained in Help. */
+  const NOTE_LETTERS: Partial<Record<NokiaKey, string>> = {
+    '1': 'C',
+    '2': 'D',
+    '3': 'E',
+    '4': 'F',
+    '5': 'G',
+    '6': 'A',
+    '7': 'B',
+  };
 
   const t = $derived(i18n.t.retro);
 
@@ -190,36 +199,19 @@
 
     <div class="keypad">
       {#each KEYPAD as key (key)}
-        {@const { hint, label } = t.keys[key]}
         <button
           type="button"
           class="key"
-          aria-label={`${key}, ${label}`}
+          aria-label={`${key}, ${t.keys[key]}`}
           {@attach pressable((long) => press(key, long))}
         >
           <span class="digit">{key}</span>
-          <span class="hint">{hint}</span>
+          {#if NOTE_LETTERS[key]}<span class="hint">{NOTE_LETTERS[key]}</span
+            >{/if}
         </button>
       {/each}
     </div>
   </div>
-
-  <MelodySettings {composition} />
-
-  <details class="help">
-    <summary>{t.helpSummary}</summary>
-    <ul>
-      {#each t.help as item (item)}
-        <!-- `backticks` in the text mark keys. -->
-        <li>
-          {#each item.split('`') as part, i (i)}{#if i % 2}<kbd>{part}</kbd
-              >{:else}{part}{/if}{/each}
-        </li>
-      {/each}
-    </ul>
-  </details>
-
-  <RtttlPanel {composition} />
 </div>
 
 <style>
@@ -366,32 +358,5 @@
   .hint {
     font-size: 0.65rem;
     opacity: 0.75;
-  }
-
-  /* --- Help --- */
-
-  .help {
-    border: 1px solid var(--border);
-    border-radius: 0.6rem;
-    background: var(--surface);
-    padding: 0.6rem 0.75rem;
-    font-size: 0.9rem;
-  }
-
-  .help summary {
-    cursor: pointer;
-    font-weight: 600;
-  }
-
-  .help ul {
-    margin: 0.5rem 0 0;
-    padding-left: 1.1rem;
-  }
-
-  kbd {
-    padding: 0 0.3rem;
-    border: 1px solid var(--border);
-    border-radius: 0.25rem;
-    font: 0.8rem var(--mono);
   }
 </style>

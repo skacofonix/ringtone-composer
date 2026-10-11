@@ -59,7 +59,7 @@ src/
   ui/
     retro/         # Nokia 3310 : LCD pixelisé + clavier T9
     modern/        # piano + éditeur de notes
-    shared/        # état partagé (composition.svelte.ts), panneau RTTTL, export, partage
+    shared/        # état partagé (composition.svelte.ts), barre du bas, menu « Plus », fenêtres (classiques, partage, sonnerie, RTTTL, aide), icônes
   App.svelte
   main.ts
 docs/            # spécifications (RTTTL, notation Nokia…)
@@ -92,6 +92,8 @@ Avant de considérer une tâche terminée, `npm run verify` doit passer. La CI G
 ## Conventions
 
 - **Langue :** le code, les identifiants et les commentaires sont en anglais. La documentation (`docs/`, README) est en français.
+- **Organisation de l'écran (mobile d'abord) :** un en-tête minimal (titre + mode), une ligne de résumé de la mélodie (nom · tempo · instrument) qui ouvre les réglages, la zone de composition, et une barre fixe en bas (Classiques, Partager, **Jouer** au centre, Sonnerie, Plus). Les actions rares (texte RTTTL, aide, tout effacer, langue) vont dans le menu « Plus ». Ne pas réajouter de blocs permanents sous la zone de composition.
+- **Icônes :** jeu Lucide copié dans `ui/shared/Icon.svelte` (pas de dépendance). L'icône « Partager » suit la convention du système (`ui/shared/platform.ts`).
 - **Textes de l'interface :** jamais en dur dans les composants. Ajoute la clé dans `src/i18n/fr.ts` (la référence) **et** dans `src/i18n/en.ts` : TypeScript et un test vérifient que les deux dictionnaires ont les mêmes clés. On les utilise via `i18n.t.…` (`src/i18n/i18n.svelte.ts`). Le cœur (`core/`) ne contient aucun texte affiché : par exemple, les erreurs du parseur RTTTL portent un `code`, que l'UI traduit. Par défaut, l'app prend la langue du navigateur (français si elle commence par `fr`, anglais sinon) ; le choix de l'utilisateur est mémorisé.
 - TypeScript `strict`, pas de `any` sans justification en commentaire.
 - On préfère les fonctions pures et les données immuables dans `core/`. Pas de classes si une fonction suffit.

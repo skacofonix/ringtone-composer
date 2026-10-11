@@ -5,10 +5,17 @@
   interface Props {
     open: boolean;
     title: string;
+    /** `bottom`: sheet sliding from the bottom; `side`: drawer on the right. */
+    placement?: 'center' | 'bottom' | 'side';
     children: Snippet;
   }
 
-  let { open = $bindable(), title, children }: Props = $props();
+  let {
+    open = $bindable(),
+    title,
+    placement = 'center',
+    children,
+  }: Props = $props();
 
   let dialog = $state<HTMLDialogElement>();
   const titleId = $props.id();
@@ -23,6 +30,7 @@
 
 <!-- Clicking the backdrop (the dialog element itself) closes it; Escape is native. -->
 <dialog
+  class={placement}
   bind:this={dialog}
   aria-labelledby={titleId}
   onclose={() => (open = false)}
@@ -53,6 +61,53 @@
     background: var(--surface);
     color: var(--text);
     box-shadow: 0 1rem 3rem rgb(0 0 0 / 0.4);
+  }
+
+  dialog.bottom {
+    width: 100%;
+    max-width: 40rem;
+    margin: auto auto 0;
+    border-width: 1px 0 0;
+    border-radius: 1.1rem 1.1rem 0 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  dialog.side {
+    width: min(82%, 20rem);
+    height: 100%;
+    max-height: 100%;
+    margin: 0 0 0 auto;
+    border-width: 0 0 0 1px;
+    border-radius: 0;
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  dialog.side .panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    dialog.bottom[open] {
+      animation: slide-up 0.2s ease-out;
+    }
+
+    dialog.side[open] {
+      animation: slide-in 0.2s ease-out;
+    }
+  }
+
+  @keyframes slide-up {
+    from {
+      transform: translateY(100%);
+    }
+  }
+
+  @keyframes slide-in {
+    from {
+      transform: translateX(100%);
+    }
   }
 
   dialog::backdrop {
