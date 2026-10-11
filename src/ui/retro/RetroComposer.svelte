@@ -163,53 +163,61 @@
 
 <div class="retro">
   <div class="phone">
-    <div class="speaker" aria-hidden="true"></div>
-    <div class="bezel">
-      <Lcd {frame} label={screenLabel} />
-    </div>
-
-    <div class="navi-row">
-      <div class="rocker" role="group" aria-label={t.moveCursor}>
-        <button
-          type="button"
-          aria-label={t.previousNote}
-          {@attach pressable(() => press('left', false))}>◀</button
-        >
-        <button
-          type="button"
-          aria-label={t.nextNote}
-          {@attach pressable(() => press('right', false))}>▶</button
-        >
+    <div class="body">
+      <div class="speaker" aria-hidden="true">
+        {#each [1, 2, 3, 4, 5] as slot (slot)}<span></span>{/each}
       </div>
-      <button
-        type="button"
-        class="navi"
-        aria-label={composition.playing
-          ? i18n.t.common.stop
-          : i18n.t.common.play}
-        onclick={() => composition.togglePlay()}
-      ></button>
-      <button
-        type="button"
-        class="c-key"
-        aria-label={t.clearKey}
-        {@attach pressable((long) => press('clear', long))}>C</button
-      >
-    </div>
 
-    <div class="keypad">
-      {#each KEYPAD as key (key)}
-        <button
-          type="button"
-          class="key"
-          aria-label={`${key}, ${t.keys[key]}`}
-          {@attach pressable((long) => press(key, long))}
-        >
-          <span class="digit">{key}</span>
-          {#if NOTE_LETTERS[key]}<span class="hint">{NOTE_LETTERS[key]}</span
-            >{/if}
-        </button>
-      {/each}
+      <div class="frame">
+        <div class="face">
+          <Lcd {frame} label={screenLabel} />
+        </div>
+
+        <!-- Same order as the real 3310: C, Navi key, scroll key. -->
+        <div class="controls">
+          <button
+            type="button"
+            class="c-key"
+            aria-label={t.clearKey}
+            {@attach pressable((long) => press('clear', long))}>C</button
+          >
+          <button
+            type="button"
+            class="navi"
+            aria-label={composition.playing
+              ? i18n.t.common.stop
+              : i18n.t.common.play}
+            onclick={() => composition.togglePlay()}
+          ></button>
+          <div class="scroll-key" role="group" aria-label={t.moveCursor}>
+            <button
+              type="button"
+              aria-label={t.previousNote}
+              {@attach pressable(() => press('left', false))}>‹</button
+            >
+            <button
+              type="button"
+              aria-label={t.nextNote}
+              {@attach pressable(() => press('right', false))}>›</button
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="keypad">
+        {#each KEYPAD as key (key)}
+          <button
+            type="button"
+            class="key"
+            aria-label={`${key}, ${t.keys[key]}`}
+            {@attach pressable((long) => press(key, long))}
+          >
+            <span class="digit">{key}</span>
+            {#if NOTE_LETTERS[key]}<span class="hint">{NOTE_LETTERS[key]}</span
+              >{/if}
+          </button>
+        {/each}
+      </div>
     </div>
   </div>
 </div>
@@ -221,45 +229,82 @@
     gap: 0.75rem;
   }
 
-  /* --- Phone body, inspired by the 3310 --- */
-
+  /*
+   * Phone modeled on the Nokia 3310 (113 x 48 mm, about 2.3:1), without the
+   * brand. Every size is in cqw (percent of the phone width), so the phone
+   * scales as a whole. Its width follows the available height, so that the
+   * keypad stays reachable without scrolling on most phones.
+   */
   .phone {
-    --key: #d5dde8;
-    --key-ink: #24324f;
-    --key-pressed: #b3c0d3;
+    --shell: #353a5c;
+    --shell-light: #4c527a;
+    --shell-dark: #262a44;
+    --silver: #dfe3e8;
+    --silver-dark: #a9b0bb;
+    --key-ink: #2c2f3a;
+    --navi-line: #3b8fe0;
 
-    width: min(100%, 19rem);
+    container-type: inline-size;
+    width: clamp(12.5rem, calc((100dvh - 16rem) / 2.35), 17rem);
+    max-width: 100%;
     margin: 0 auto;
-    padding: 1rem 1.1rem 1.5rem;
-    border-radius: 2.6rem 2.6rem 3.4rem 3.4rem;
-    background:
-      radial-gradient(
-        120% 60% at 50% 0%,
-        rgb(255 255 255 / 0.12),
-        transparent 60%
-      ),
-      var(--phone-body);
-    box-shadow:
-      inset 0 0 0 2px rgb(255 255 255 / 0.06),
-      0 0.6rem 1.6rem rgb(0 0 0 / 0.35);
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
   }
 
-  .speaker {
-    width: 2.6rem;
-    height: 0.3rem;
-    margin: 0 auto 0.8rem;
-    border-radius: 1rem;
-    background: rgb(0 0 0 / 0.45);
+  .body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 11cqw 6cqw 20cqw;
+    border-radius: 24cqw 24cqw 30cqw 30cqw / 12cqw 12cqw 16cqw 16cqw;
+    background:
+      linear-gradient(
+        100deg,
+        transparent 30%,
+        rgb(255 255 255 / 0.12) 45%,
+        transparent 60%
+      ),
+      linear-gradient(var(--shell-light), var(--shell) 30%, var(--shell-dark));
+    box-shadow:
+      inset 0 0 0 0.6cqw rgb(255 255 255 / 0.08),
+      inset 0 -2cqw 4cqw rgb(0 0 0 / 0.3),
+      0 3cqw 7cqw rgb(0 0 0 / 0.4);
   }
 
-  .bezel {
-    padding: 0.9rem 0.9rem 1.1rem;
-    border-radius: 0.9rem 0.9rem 2.2rem 2.2rem;
-    background: #3b4250;
-    box-shadow: inset 0 0.15rem 0.4rem rgb(0 0 0 / 0.5);
+  /* Earpiece: a vertical row of slots. */
+  .speaker {
+    display: flex;
+    flex-direction: column;
+    gap: 2cqw;
+    margin-bottom: 11cqw;
+  }
+
+  .speaker span {
+    width: 4.5cqw;
+    height: 1cqw;
+    border-radius: 1cqw;
+    background: rgb(0 0 0 / 0.55);
+    box-shadow: 0 0.3cqw 0 rgb(255 255 255 / 0.1);
+  }
+
+  /* The silver "lyre" around the screen, widening around the Navi key. */
+  .frame {
+    width: 100%;
+    padding: 2.6cqw 2.6cqw 0;
+    border-radius: 22cqw 22cqw 36cqw 36cqw / 16cqw 16cqw 24cqw 24cqw;
+    background: linear-gradient(var(--silver), var(--silver-dark));
+    box-shadow:
+      inset 0 0.5cqw 0.8cqw rgb(255 255 255 / 0.7),
+      0 1cqw 2cqw rgb(0 0 0 / 0.35);
+  }
+
+  .face {
+    padding: 12cqw 7cqw 10cqw;
+    border-radius: 19cqw 19cqw 26cqw 26cqw / 13cqw 13cqw 15cqw 15cqw;
+    background: linear-gradient(var(--shell), var(--shell-dark));
+    box-shadow: inset 0 0.8cqw 2cqw rgb(0 0 0 / 0.5);
   }
 
   button {
@@ -270,93 +315,128 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  .navi-row {
+  .controls {
     display: grid;
-    grid-template-columns: 1fr 1.4fr 1fr;
-    align-items: center;
-    gap: 0.6rem;
-    margin: 1rem 0 1.1rem;
-  }
-
-  .rocker {
-    display: flex;
-    overflow: hidden;
-    border-radius: 1rem;
-    background: var(--key);
-  }
-
-  .rocker button {
-    flex: 1;
-    padding: 0.55rem 0;
-    background: none;
-    color: var(--key-ink);
-    font-size: 0.75rem;
-  }
-
-  .rocker button:active {
-    background: var(--key-pressed);
+    grid-template-columns: 1fr 2.2fr 1fr;
+    align-items: start;
+    gap: 1cqw;
+    padding: 2.5cqw 0 3cqw;
   }
 
   .navi {
-    height: 2.6rem;
-    border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%;
-    background: linear-gradient(#a9bde0, #7f98c4);
+    position: relative;
+    height: 10cqw;
+    border-radius: 50%;
+    background: linear-gradient(#f4f6f8, #c4cad3);
     box-shadow:
-      inset 0 -0.2rem 0 rgb(0 0 0 / 0.2),
-      0 0.15rem 0.3rem rgb(0 0 0 / 0.4);
+      inset 0 -0.8cqw 0 rgb(0 0 0 / 0.12),
+      0 0.6cqw 1cqw rgb(0 0 0 / 0.3);
   }
 
-  .navi:active {
-    background: #7f98c4;
-    box-shadow: inset 0 0.1rem 0.2rem rgb(0 0 0 / 0.3);
+  /* The thin blue line of the 3310 Navi key. */
+  .navi::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 30%;
+    height: 1cqw;
+    border-radius: 1cqw;
+    background: var(--navi-line);
+    transform: translate(-50%, -50%);
+  }
+
+  /* C and scroll keys: tilted, hanging below the silver frame. */
+  .c-key,
+  .scroll-key {
+    height: 11cqw;
+    margin-top: 5cqw;
+    background: linear-gradient(#eef0f3, #b9c0ca);
+    color: var(--key-ink);
+    box-shadow:
+      inset 0 -0.8cqw 0 rgb(0 0 0 / 0.12),
+      0 0.8cqw 1.4cqw rgb(0 0 0 / 0.35);
   }
 
   .c-key {
-    justify-self: end;
-    width: 2.8rem;
-    padding: 0.45rem 0;
-    border-radius: 1rem;
-    background: var(--key);
-    color: var(--key-ink);
+    font-size: 5cqw;
     font-weight: 700;
+    border-radius: 5cqw 3cqw 5cqw 6cqw;
+    transform: rotate(-22deg);
   }
 
-  .c-key:active {
-    background: var(--key-pressed);
+  .scroll-key {
+    display: flex;
+    overflow: hidden;
+    border-radius: 3cqw 5cqw 6cqw 5cqw;
+    transform: rotate(22deg);
   }
 
+  .scroll-key button {
+    flex: 1;
+    padding: 0;
+    background: none;
+    color: var(--key-ink);
+    font-size: 6cqw;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .navi:active,
+  .c-key:active,
+  .scroll-key button:active,
+  .key:active {
+    filter: brightness(0.88);
+  }
+
+  /* Oval keys on a "smile": outer columns higher and tilted. */
   .keypad {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.55rem 0.8rem;
+    gap: 6.5cqw 4.5cqw;
+    width: 92%;
+    margin-top: 12cqw;
   }
 
   .key {
     display: flex;
     align-items: baseline;
     justify-content: center;
-    gap: 0.3rem;
-    padding: 0.5rem 0;
-    border-radius: 45% 45% 50% 50% / 60% 60% 70% 70%;
-    background: var(--key);
+    gap: 1cqw;
+    height: 11.5cqw;
+    border-radius: 50%;
+    background: radial-gradient(
+      120% 90% at 50% 20%,
+      #f6f7f9,
+      #c3c9d2 70%,
+      #a3abb6
+    );
     color: var(--key-ink);
     box-shadow:
-      inset 0 -0.2rem 0 rgb(0 0 0 / 0.12),
-      0 0.12rem 0.25rem rgb(0 0 0 / 0.35);
+      inset 0 -0.8cqw 0 rgb(0 0 0 / 0.1),
+      0 0.8cqw 1.2cqw rgb(0 0 0 / 0.4);
+    padding-top: 2cqw;
   }
 
-  .key:active {
-    background: var(--key-pressed);
-    box-shadow: inset 0 0.1rem 0.2rem rgb(0 0 0 / 0.25);
+  .key:nth-child(3n + 1) {
+    transform: translateY(-2cqw) rotate(9deg);
+  }
+
+  .key:nth-child(3n + 2) {
+    transform: translateY(1.5cqw);
+  }
+
+  .key:nth-child(3n) {
+    transform: translateY(-2cqw) rotate(-9deg);
   }
 
   .digit {
-    font-size: 1.15rem;
+    font-size: 6cqw;
     font-weight: 700;
   }
 
   .hint {
-    font-size: 0.65rem;
-    opacity: 0.75;
+    font-size: 3.4cqw;
+    opacity: 0.7;
   }
 </style>
