@@ -8,6 +8,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- **MP3 and M4R ringtone export**, besides WAV: MP3 for Android (about 4 times lighter), M4R for iPhone (AAC, through GarageBand or the Finder on a Mac). Encoders from Mediabunny (MPL-2.0), loaded only when exporting.
+
 - **Haptic feedback on iPhone** (iOS 18 and later), through the system tick of a hidden switch input, since Safari has no Vibration API. Unofficial technique: it may stop working in a future iOS.
 
 ## [1.1.0] - 2026-10-11

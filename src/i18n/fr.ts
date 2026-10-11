@@ -218,8 +218,17 @@ export const fr = {
   },
   export: {
     title: 'Utiliser comme sonnerie',
-    intro: (name: string, seconds: string) =>
-      `« ${name} » dure ${seconds} s. Le fichier exporté est au format WAV, lisible par Android et par GarageBand sur iPhone.`,
+    intro: (name: string, seconds: string) => `« ${name} » dure ${seconds} s.`,
+    format: 'Format',
+    formats: {
+      mp3: { label: 'MP3', hint: 'Léger et lu partout : idéal pour Android.' },
+      m4r: {
+        label: 'M4R',
+        hint: 'Le format des sonneries iPhone (via GarageBand ou le Finder).',
+      },
+      wav: { label: 'WAV', hint: 'Sans compression, le plus compatible.' },
+    },
+    m4rUnavailable: 'M4R non disponible dans ce navigateur.',
     tooLong: (max: number) =>
       `Plus de ${max} s : l'iPhone coupera la sonnerie.`,
     create: 'Créer le fichier audio',
@@ -246,6 +255,7 @@ export const fr = {
       "Dans GarageBand, crée un projet « Enregistreur audio », passe en vue pistes, touche l'icône des boucles → « Fichiers » et glisse le fichier sur la piste.",
       'Reviens à « Mes morceaux », appui long sur le projet → Partager → Sonnerie → Exporter.',
       'Puis Réglages → Sons et vibrations → Sonnerie.',
+      'Sur Mac, plus simple : branche l’iPhone, sélectionne-le dans le Finder et glisses-y le fichier .m4r ; il rejoint directement les sonneries.',
     ],
   },
 };

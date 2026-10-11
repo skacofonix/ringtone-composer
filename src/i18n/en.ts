@@ -213,8 +213,20 @@ export const en: Messages = {
   },
   export: {
     title: 'Use as a ringtone',
-    intro: (name, seconds) =>
-      `“${name}” lasts ${seconds} s. The exported file is a WAV file, readable by Android and by GarageBand on iPhone.`,
+    intro: (name, seconds) => `“${name}” lasts ${seconds} s.`,
+    format: 'Format',
+    formats: {
+      mp3: {
+        label: 'MP3',
+        hint: 'Light and readable everywhere: best for Android.',
+      },
+      m4r: {
+        label: 'M4R',
+        hint: 'The iPhone ringtone format (through GarageBand or the Finder).',
+      },
+      wav: { label: 'WAV', hint: 'Uncompressed, the most compatible.' },
+    },
+    m4rUnavailable: 'M4R is not available in this browser.',
     tooLong: (max) => `Longer than ${max} s: the iPhone will cut the ringtone.`,
     create: 'Create the audio file',
     creating: 'Creating…',
@@ -240,6 +252,7 @@ export const en: Messages = {
       'In GarageBand, create an “Audio Recorder” project, switch to tracks view, tap the loop icon → “Files” and drag the file onto the track.',
       'Go back to “My Songs”, long press the project → Share → Ringtone → Export.',
       'Then Settings → Sounds & Haptics → Ringtone.',
+      'On a Mac, simpler: connect the iPhone, select it in the Finder and drag the .m4r file onto it; it goes straight to the ringtones.',
     ],
   },
 };

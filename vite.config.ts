@@ -11,6 +11,10 @@ const { version } = JSON.parse(readFileSync('package.json', 'utf8')) as {
 
 // https://vite.dev/config/
 export default defineConfig({
+  build: {
+    // The lazy-loaded encoder chunks are large but only fetched on export.
+    chunkSizeWarningLimit: 800,
+  },
   define: {
     __APP_VERSION__: JSON.stringify(version),
   },
@@ -22,6 +26,18 @@ export default defineConfig({
       registerType: 'autoUpdate',
       // Icons are generated from public/favicon.svg (see pwa-assets.config.ts).
       pwaAssets: { config: true },
+      workbox: {
+        // The audio encoders (~1 MB) load only when exporting MP3 / M4R: keep
+        // them out of the install, cache them on first use instead.
+        globIgnores: ['**/assets/mediabunny-*.js', '**/assets/src-*.js'],
+        runtimeCaching: [
+          {
+            urlPattern: /\/assets\/.*\.js$/,
+            handler: 'CacheFirst',
+            options: { cacheName: 'encoders' },
+          },
+        ],
+      },
       manifest: {
         name: 'RingtoneComposer',
         short_name: 'Ringtones',

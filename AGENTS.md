@@ -56,7 +56,7 @@ src/
     instruments.ts # synthesized instruments described as data (partials, ADSR, FM)
     synth.ts       # one voice per note, shared by playback and export
     render.ts      # offline rendering -> PCM (OfflineAudioContext), normalized
-    encoders/      # PCM -> WAV (home-made)
+    encoders/      # PCM -> WAV (home-made), MP3 / M4R (Mediabunny, loaded on demand)
   catalog/       # classic ringtones in RTTTL (data), translated titles
   i18n/          # translations: fr.ts (reference), en.ts, language detection
   ui/

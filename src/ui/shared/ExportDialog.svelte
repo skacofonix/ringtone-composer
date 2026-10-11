@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { canEncode, encodeCompressed } from '../../audio/encoders/compressed';
   import { encodeWav } from '../../audio/encoders/wav';
   import { INSTRUMENTS } from '../../audio/instruments';
   import { EXPORT_SAMPLE_RATE, renderMelody } from '../../audio/render';
@@ -7,6 +8,8 @@
   import { i18n } from '../../i18n/i18n.svelte';
   import type { Composition } from './composition.svelte';
   import Dialog from './Dialog.svelte';
+  import { isApplePlatform } from './platform';
+  import { readSetting, writeSetting } from './storage';
 
   interface Props {
     open: boolean;
@@ -19,6 +22,40 @@
   const IPHONE_MAX_SECONDS = 30;
 
   const t = $derived(i18n.t.export);
+
+  const FORMATS = ['mp3', 'm4r', 'wav'] as const;
+  type Format = (typeof FORMATS)[number];
+  const MIME_TYPES: Record<Format, string> = {
+    mp3: 'audio/mpeg',
+    m4r: 'audio/mp4',
+    wav: 'audio/wav',
+  };
+  const FORMAT_SETTING = 'exportFormat';
+
+  function isFormat(value: unknown): value is Format {
+    return (FORMATS as readonly unknown[]).includes(value);
+  }
+
+  /** Last choice, otherwise M4R on Apple devices and MP3 elsewhere. */
+  const saved = readSetting(FORMAT_SETTING);
+  let format = $state<Format>(
+    isFormat(saved) ? saved : isApplePlatform() ? 'm4r' : 'mp3',
+  );
+  /** M4R needs the browser's AAC encoder: checked when the dialog opens. */
+  let m4rSupported = $state<boolean | null>(null);
+
+  $effect(() => {
+    if (!open || m4rSupported !== null) return;
+    void canEncode('m4r', EXPORT_SAMPLE_RATE).then((ok) => {
+      m4rSupported = ok;
+      if (!ok && format === 'm4r') format = 'mp3';
+    });
+  });
+
+  function chooseFormat(next: Format) {
+    format = next;
+    writeSetting(FORMAT_SETTING, next);
+  }
 
   let file = $state<File | null>(null);
   let fileUrl = $state<string | null>(null);
@@ -37,11 +74,12 @@
     error = '';
   }
 
-  // A new melody or instrument, or opening/closing the dialog, discards the
-  // prepared file.
+  // A new melody, instrument or format, or opening/closing the dialog,
+  // discards the prepared file.
   $effect(() => {
     void composition.melody;
     void composition.instrument;
+    void format;
     void open;
     return reset;
   });
@@ -64,9 +102,12 @@
         composition.melody,
         composition.instrument,
       );
-      const wav = encodeWav(samples, EXPORT_SAMPLE_RATE);
-      file = new File([wav], fileName(composition.melody.name, 'wav'), {
-        type: 'audio/wav',
+      const bytes =
+        format === 'wav'
+          ? encodeWav(samples, EXPORT_SAMPLE_RATE)
+          : await encodeCompressed(samples, EXPORT_SAMPLE_RATE, format);
+      file = new File([bytes], fileName(composition.melody.name, format), {
+        type: MIME_TYPES[format],
       });
       fileUrl = URL.createObjectURL(file);
     } catch (e) {
@@ -113,6 +154,22 @@
   {#if seconds > IPHONE_MAX_SECONDS}
     <p class="warning">{t.tooLong(IPHONE_MAX_SECONDS)}</p>
   {/if}
+
+  <div class="formats" role="radiogroup" aria-label={t.format}>
+    {#each FORMATS as value (value)}
+      <button
+        type="button"
+        role="radio"
+        aria-checked={format === value}
+        disabled={value === 'm4r' && m4rSupported === false}
+        onclick={() => chooseFormat(value)}>{t.formats[value].label}</button
+      >
+    {/each}
+  </div>
+  <p class="hint">
+    {t.formats[format].hint}
+    {#if m4rSupported === false}<br />{t.m4rUnavailable}{/if}
+  </p>
 
   {#if !file}
     <button
@@ -168,6 +225,41 @@
   p {
     margin: 0 0 0.75rem;
     font-size: 0.9rem;
+  }
+
+  .formats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.25rem;
+    padding: 0.2rem;
+    border-radius: 0.6rem;
+    background: var(--chip);
+  }
+
+  .formats button {
+    padding: 0.4rem;
+    font-weight: 600;
+    border: 0;
+    border-radius: 0.45rem;
+    background: transparent;
+    color: var(--muted);
+  }
+
+  .formats button[aria-checked='true'] {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.15);
+  }
+
+  .formats button:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  .hint {
+    margin: 0.4rem 0 0.75rem;
+    color: var(--muted);
+    font-size: 0.85rem;
   }
 
   .warning {

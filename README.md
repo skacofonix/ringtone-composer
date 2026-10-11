@@ -1,4 +1,4 @@
-# RingtoneComposer 📟
+# RingtoneComposer 🎵
 
 **English** · [Français](README.fr.md)
 
@@ -10,8 +10,8 @@ Compose ringtones like on a Nokia 3310, right from your smartphone.
 
 An installable web app (PWA) to compose, play, share and export ringtones in the **RTTTL** format. Two input modes:
 
-- **Retro**: the LCD screen and T9 keypad of the Nokia 3310, just like in 2000;
-- **Modern**: a piano keyboard, easier for composing.
+- **Retro**: the LCD screen and T9 keypad of the Nokia 3310, just like in 2000
+- **Modern**: a piano keyboard, easier for composing
 
 👉 **Try it: <https://skacofonix.github.io/ringtone-composer/>** (can be installed on your home screen).
 
@@ -27,7 +27,7 @@ An installable web app (PWA) to compose, play, share and export ringtones in the
 - Catalog of public-domain classics (Nokia Tune, Tetris, Für Elise…)
 - Share by link
 - Choice of instrument: Nokia buzzer, 8-bit console, flute, organ, music box, electric piano
-- Audio export to use as a ringtone (Android and iPhone), and MIDI export
+- Ringtone export as MP3, M4R (iPhone) or WAV, and MIDI export
 - Works offline
 - Light and dark themes (follows the system by default)
 - Haptic feedback on key presses (Android, iPhone with iOS 18+), can be turned off
