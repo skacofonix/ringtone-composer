@@ -32,7 +32,7 @@
       value={composition.melody.name}
       oninput={(e) => {
         const name = e.currentTarget.value;
-        composition.edit((s) => setName(s, name));
+        composition.edit((s) => setName(s, name), 'name');
       }}
     />
   </label>
@@ -47,7 +47,7 @@
       value={composition.melody.bpm}
       oninput={(e) => {
         const bpm = e.currentTarget.valueAsNumber;
-        composition.edit((s) => setBpm(s, bpm));
+        composition.edit((s) => setBpm(s, bpm), 'tempo');
       }}
     />
   </label>

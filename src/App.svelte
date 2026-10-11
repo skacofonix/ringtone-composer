@@ -7,6 +7,7 @@
   import RetroComposer from './ui/retro/RetroComposer.svelte';
   import { Composition } from './ui/shared/composition.svelte';
   import BottomBar from './ui/shared/BottomBar.svelte';
+  import Icon from './ui/shared/Icon.svelte';
   import MelodySummary from './ui/shared/MelodySummary.svelte';
   import { readSetting, writeSetting } from './ui/shared/storage';
 
@@ -40,6 +41,21 @@
 
   openSharedLink();
 
+  /** Ctrl/Cmd+Z undoes, Ctrl+Y or Ctrl/Cmd+Shift+Z redoes. Text fields keep their own undo. */
+  function onkeydown(event: KeyboardEvent) {
+    if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('input, textarea, select, [contenteditable]')) return;
+    const key = event.key.toLowerCase();
+    if (key === 'z' && !event.shiftKey) {
+      event.preventDefault();
+      composition.undo();
+    } else if (key === 'y' || (key === 'z' && event.shiftKey)) {
+      event.preventDefault();
+      composition.redo();
+    }
+  }
+
   function selectMode(next: Mode) {
     composition.stop();
     mode = next;
@@ -47,11 +63,29 @@
   }
 </script>
 
-<svelte:window onhashchange={openSharedLink} />
+<svelte:window onhashchange={openSharedLink} {onkeydown} />
 
 <main>
   <header>
     <h1>RingtoneComposer</h1>
+    <div class="history">
+      <button
+        type="button"
+        aria-label={i18n.t.app.undo}
+        title={i18n.t.app.undo}
+        disabled={!composition.canUndo}
+        onclick={() => composition.undo()}
+        ><Icon name="undo" size={20} /></button
+      >
+      <button
+        type="button"
+        aria-label={i18n.t.app.redo}
+        title={i18n.t.app.redo}
+        disabled={!composition.canRedo}
+        onclick={() => composition.redo()}
+        ><Icon name="redo" size={20} /></button
+      >
+    </div>
     <div class="modes" role="tablist" aria-label={i18n.t.app.modes}>
       {#each MODES as id (id)}
         <button
@@ -97,8 +131,32 @@
   }
 
   h1 {
+    flex: 1;
     margin: 0;
     font-size: 1.3rem;
+  }
+
+  .history {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .history button {
+    display: grid;
+    place-items: center;
+    width: 2.3rem;
+    height: 2.1rem;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  .history button:disabled {
+    opacity: 0.35;
+    cursor: default;
   }
 
   .modes {

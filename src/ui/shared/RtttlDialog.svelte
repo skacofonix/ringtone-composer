@@ -31,7 +31,7 @@
   function oninput(event: Event & { currentTarget: HTMLTextAreaElement }) {
     draft = event.currentTarget.value;
     try {
-      composition.load(parseRtttl(draft));
+      composition.load(parseRtttl(draft), 'rtttl');
       error = null;
     } catch (e) {
       if (!(e instanceof RtttlParseError)) throw e;

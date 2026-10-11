@@ -10,6 +10,15 @@ import {
 import { MelodyPlayer } from '../../audio/player';
 import { createEditor, type EditorState } from '../../core/editor';
 import {
+  canRedo,
+  canUndo,
+  createHistory,
+  record,
+  redo,
+  undo,
+  type History,
+} from '../../core/history';
+import {
   durationMs,
   frequency,
   type Melody,
@@ -37,9 +46,12 @@ const DEFAULT_RTTTL =
   'Nokia Tune:d=4,o=5,b=225:8e6,8d6,f#,g#,8c#6,8b,d,e,8b,8a,c#,e,2a';
 
 export class Composition {
-  /** Immutable editor state, replaced on each edit (hence `$state.raw`). */
-  editor = $state.raw<EditorState>(
-    createEditor(loadSavedMelody() ?? parseRtttl(DEFAULT_RTTTL)),
+  /**
+   * Immutable editor states with undo / redo, replaced on each edit (hence
+   * `$state.raw`). The current state is `history.present`.
+   */
+  #history = $state.raw<History<EditorState>>(
+    createHistory(createEditor(loadSavedMelody() ?? parseRtttl(DEFAULT_RTTTL))),
   );
   /** Instrument used for playback, previews and the audio export. */
   instrument = $state<InstrumentId>(savedInstrument());
@@ -49,27 +61,56 @@ export class Composition {
 
   readonly #player = new MelodyPlayer();
 
+  get editor(): EditorState {
+    return this.#history.present;
+  }
+
   get melody(): Melody {
     return this.editor.melody;
   }
 
-  /** Applies an editing operation from core/editor.ts. Stops playback. */
-  edit(operation: (state: EditorState) => EditorState): void {
-    this.stop();
-    this.#update(operation(this.editor));
+  get canUndo(): boolean {
+    return canUndo(this.#history);
   }
 
-  /** Replaces the whole melody (import, catalog…). */
-  load(melody: Melody): void {
+  get canRedo(): boolean {
+    return canRedo(this.#history);
+  }
+
+  /**
+   * Applies an editing operation from core/editor.ts. Stops playback.
+   * Consecutive edits of the same `group` (e.g. typing the name) are undone
+   * in one step.
+   */
+  edit(
+    operation: (state: EditorState) => EditorState,
+    group: string | null = null,
+  ): void {
     this.stop();
-    this.#update(createEditor(melody));
+    this.#setHistory(record(this.#history, operation(this.editor), group));
+  }
+
+  /** Replaces the whole melody (import, catalog…). Can be undone. */
+  load(melody: Melody, group: string | null = null): void {
+    this.stop();
+    this.#setHistory(record(this.#history, createEditor(melody), group));
+  }
+
+  undo(): void {
+    this.stop();
+    this.#setHistory(undo(this.#history));
+  }
+
+  redo(): void {
+    this.stop();
+    this.#setHistory(redo(this.#history));
   }
 
   /** Every change goes through here, so that it is saved automatically. */
-  #update(editor: EditorState): void {
-    if (editor === this.editor) return;
-    this.editor = editor;
-    saveMelody(editor.melody);
+  #setHistory(history: History<EditorState>): void {
+    if (history === this.#history) return;
+    this.#history = history;
+    saveMelody(history.present.melody);
   }
 
   setInstrument(instrument: InstrumentId): void {

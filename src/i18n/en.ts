@@ -11,6 +11,8 @@ export const en: Messages = {
   },
   app: {
     modes: 'Input mode',
+    undo: 'Undo',
+    redo: 'Redo',
     retro: 'Retro 3310',
     modern: 'Modern',
     openShared: (shared, current) =>

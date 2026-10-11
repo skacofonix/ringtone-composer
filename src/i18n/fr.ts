@@ -13,6 +13,8 @@ export const fr = {
   },
   app: {
     modes: 'Mode de saisie',
+    undo: 'Annuler',
+    redo: 'Rétablir',
     retro: 'Rétro 3310',
     modern: 'Moderne',
     openShared: (shared: string, current: string) =>
