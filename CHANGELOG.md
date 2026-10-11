@@ -12,6 +12,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Changed
 
+- In the Options menu lists, the scroll key works like the 3310 rocker: `›` goes up, `‹` goes down (on the Tempo screen, `›` is faster).
 - A long press on the Navi key plays or stops the melody; Enter is the Navi key and Space plays on a computer keyboard.
 - "Clear all" no longer asks for confirmation: it can be undone.
 

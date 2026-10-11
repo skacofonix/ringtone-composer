@@ -63,7 +63,7 @@ On the phone, the Navi key shows "Options" at the bottom of the Composer screen 
 In the app (`src/ui/retro/menu.ts`, a pure state machine, drawn by `screen.ts`):
 
 - a **short press** on the Navi key opens Options; a **long press** plays or stops (shortcut, not on the original);
-- the scroll key moves in the list (it wraps around), the Navi key selects, `C` goes back, and a digit jumps to the item with that number;
+- the scroll key moves in the list (it wraps around): its upper end `›` goes up and `‹` goes down, like the 3310 rocker; on the Tempo screen `›` is faster. The Navi key selects, `C` goes back, and a digit jumps to the item with that number;
 - items: Play, Tempo, Instrument, Classics, Share, Ringtone, Clear all, Exit. Play, Share, Ringtone and Clear all are hidden while the melody is empty;
 - **Tempo** steps through the tempo table of the Nokia Smart Messaging specification (25, 28, 31… 900 BPM), starting from the nearest value;
 - **Instrument** plays a note of each instrument while scrolling;

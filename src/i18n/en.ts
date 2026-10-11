@@ -167,7 +167,7 @@ export const en: Messages = {
       '`*`: next octave, `#`: sharp.',
       '`C`: delete the note, long press: clear all (can be undone). `‹` `›`: move the cursor.',
       'Center key (Navi): Options menu (tempo, instrument, classics, sharing…). Long press: play / stop.',
-      'In the menu: `‹` `›` to choose, Navi to select, `C` to go back, or the number of the item.',
+      'In the menu: `›` goes up and `‹` goes down the list (on the Tempo screen, `›` is faster), Navi to select, `C` to go back, or the number of the item.',
       'On a computer keyboard: digits, `*`, `#`, `Backspace`, arrows, `Enter` (Navi), `Space` (play) and `Esc` (back). Holding a key down = long press.',
     ],
   },

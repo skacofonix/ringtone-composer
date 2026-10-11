@@ -173,10 +173,15 @@
     }
   }
 
-  /** In the menu: scroll key moves, C goes back, digits jump to an item. */
+  /**
+   * In the menu: scroll key moves, C goes back, digits jump to an item.
+   * In lists, the upper end of the scroll key (›) goes up, like the 3310
+   * rocker; on the tempo screen, › makes it faster, as its arrows show.
+   */
   function pressInMenu(key: NokiaKey) {
-    if (key === 'left') menuKey('up');
-    else if (key === 'right') menuKey('down');
+    const list = menu?.screen !== 'tempo';
+    if (key === 'left') menuKey(list ? 'down' : 'up');
+    else if (key === 'right') menuKey(list ? 'up' : 'down');
     else if (key === 'clear') menuKey('back');
     else if (/^[1-9]$/.test(key)) menuKey(Number(key));
   }
@@ -282,6 +287,16 @@
     // Keys typed while a dialog is open belong to the dialog.
     if (document.querySelector('dialog[open]')) return;
     if (event.metaKey || (event.ctrlKey && !event.altKey)) return;
+    // In the menu, the up and down arrows follow the screen: up goes up a
+    // list, and makes the tempo faster.
+    if (menu && (event.code === 'ArrowUp' || event.code === 'ArrowDown')) {
+      event.preventDefault();
+      const up = event.code === 'ArrowUp';
+      menuKey(
+        menu.screen === 'tempo' ? (up ? 'down' : 'up') : up ? 'up' : 'down',
+      );
+      return;
+    }
     const key = keyOf(event);
     if (!key || belongsToFocus(event, key)) return;
     event.preventDefault();

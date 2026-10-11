@@ -170,7 +170,7 @@ export const fr = {
       '`*` : octave suivante, `#` : dièse.',
       '`C` : effacer la note, appui long : tout effacer (annulable). `‹` `›` : déplacer le curseur.',
       'Touche centrale (Navi) : menu Options (tempo, instrument, classiques, partage…). Appui long : jouer / arrêter.',
-      'Dans le menu : `‹` `›` pour choisir, Navi pour valider, `C` pour revenir, ou le chiffre de l’élément.',
+      'Dans le menu : `›` monte et `‹` descend dans la liste (sur l’écran Tempo, `›` accélère), Navi pour valider, `C` pour revenir, ou le chiffre de l’élément.',
       "Au clavier d'ordinateur : chiffres, `*`, `#`, `Retour arrière`, flèches, `Entrée` (Navi), `Espace` (jouer) et `Échap` (retour). Garder une touche enfoncée = appui long.",
     ],
   },

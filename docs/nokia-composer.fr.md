@@ -63,7 +63,7 @@ Sur le téléphone, la touche Navi affiche « Options » en bas de l'écran du C
 Dans l'application (`src/ui/retro/menu.ts`, un automate pur, dessiné par `screen.ts`) :
 
 - un **appui court** sur la Navi ouvre Options ; un **appui long** joue ou arrête (raccourci, absent de l'original) ;
-- la touche de défilement parcourt la liste (qui boucle), la Navi valide, `C` revient en arrière, et un chiffre saute à l'élément de ce numéro ;
+- la touche de défilement parcourt la liste (qui boucle) : son côté haut `›` monte et `‹` descend, comme la bascule du 3310 ; sur l'écran Tempo, `›` accélère. La Navi valide, `C` revient en arrière, et un chiffre saute à l'élément de ce numéro ;
 - éléments : Jouer, Tempo, Instrument, Classiques, Partager, Sonnerie, Tout effacer, Quitter. Jouer, Partager, Sonnerie et Tout effacer sont masqués tant que la mélodie est vide ;
 - **Tempo** parcourt la table des tempos de la norme Nokia Smart Messaging (25, 28, 31… 900 BPM), en partant de la valeur la plus proche ;
 - **Instrument** fait entendre une note de chaque instrument pendant le défilement ;
