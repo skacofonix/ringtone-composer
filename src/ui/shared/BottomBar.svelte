@@ -105,8 +105,25 @@
   }
 
   button:disabled {
-    opacity: 0.4;
     cursor: default;
+  }
+
+  button:disabled:not(.play) {
+    opacity: 0.4;
+  }
+
+  /*
+   * The play disc overlaps the top border of the bar: dimming it with opacity
+   * would show the border through it. Use solid "off" colors instead.
+   */
+  .play:disabled .disc {
+    background: var(--chip);
+    color: var(--muted);
+    box-shadow: none;
+  }
+
+  .play:disabled > span:last-child {
+    opacity: 0.4;
   }
 
   span {

@@ -19,6 +19,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - "Clear all" no longer asks for confirmation: it can be undone.
 - One-line header on phones: the app icon replaces the title, which moves to the top of the "More" menu.
 
+### Fixed
+
+- The disabled Play button of the bottom bar was see-through, showing the top border of the bar behind it.
+
 ## [1.0.0] - 2026-10-11
 
 First version of the rewrite, as an installable web app (the 2015 C# version lives at <https://github.com/skacofonix/RingtoneComposer>).
