@@ -60,7 +60,7 @@ src/
   catalog/       # classic ringtones in RTTTL (data), translated titles
   i18n/          # translations: fr.ts (reference), en.ts, language detection
   ui/
-    retro/         # Nokia 3310: pixelated LCD + T9 keypad
+    retro/         # Nokia 3310: pixelated LCD + T9 keypad + "Options" menu on the LCD (menu.ts)
     modern/        # piano + note editor
     shared/        # shared state (composition.svelte.ts), bottom bar, "More" menu, dialogs (classics, share, ringtone, RTTTL, Nokia keys, help), icons, theme, storage
   App.svelte

@@ -9,7 +9,6 @@ export const fr = {
     stop: 'Stop',
     close: 'Fermer',
     untitled: 'Sans titre',
-    clearAllConfirm: 'Effacer toutes les notes ?',
   },
   app: {
     modes: 'Mode de saisie',
@@ -142,6 +141,26 @@ export const fr = {
     previousNote: 'Note précédente',
     nextNote: 'Note suivante',
     clearKey: 'Effacer (appui long : tout effacer)',
+    naviKey: 'Options (appui long : jouer / arrêter)',
+    menu: {
+      options: 'Options',
+      choose: 'Choisir',
+      ok: 'OK',
+      bpm: 'bpm',
+      items: {
+        play: 'Jouer',
+        tempo: 'Tempo',
+        instrument: 'Instrument',
+        classics: 'Classiques',
+        share: 'Partager',
+        ringtone: 'Sonnerie',
+        clear: 'Tout effacer',
+        exit: 'Quitter',
+      },
+      screen: (title: string, item: string, n: number, total: number) =>
+        `Menu ${title} : ${item} (${n} sur ${total})`,
+      tempoScreen: (bpm: number) => `Tempo : ${bpm} bpm`,
+    },
     screen: (name: string, count: number, bpm: number) =>
       `Écran : ${name}, ${count} notes, tempo ${bpm}`,
     help: [
@@ -149,9 +168,10 @@ export const fr = {
       'Appui long sur une note : note pointée (durée × 1,5).',
       '`8` / `9` : note courante plus courte / plus longue.',
       '`*` : octave suivante, `#` : dièse.',
-      '`C` : effacer la note, appui long : tout effacer. ◀ ▶ : déplacer le curseur.',
-      'Grande touche centrale : jouer / arrêter.',
-      "Au clavier d'ordinateur : chiffres, `*`, `#`, `Retour arrière`, flèches et `Entrée`. Garder une touche enfoncée = appui long.",
+      '`C` : effacer la note, appui long : tout effacer (annulable). `‹` `›` : déplacer le curseur.',
+      'Touche centrale (Navi) : menu Options (tempo, instrument, classiques, partage…). Appui long : jouer / arrêter.',
+      'Dans le menu : `‹` `›` pour choisir, Navi pour valider, `C` pour revenir, ou le chiffre de l’élément.',
+      "Au clavier d'ordinateur : chiffres, `*`, `#`, `Retour arrière`, flèches, `Entrée` (Navi), `Espace` (jouer) et `Échap` (retour). Garder une touche enfoncée = appui long.",
     ],
   },
   keys: {

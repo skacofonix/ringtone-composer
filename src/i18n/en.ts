@@ -7,7 +7,6 @@ export const en: Messages = {
     stop: 'Stop',
     close: 'Close',
     untitled: 'Untitled',
-    clearAllConfirm: 'Delete all notes?',
   },
   app: {
     modes: 'Input mode',
@@ -139,6 +138,26 @@ export const en: Messages = {
     previousNote: 'Previous note',
     nextNote: 'Next note',
     clearKey: 'Clear (long press: clear all)',
+    naviKey: 'Options (long press: play / stop)',
+    menu: {
+      options: 'Options',
+      choose: 'Select',
+      ok: 'OK',
+      bpm: 'bpm',
+      items: {
+        play: 'Play',
+        tempo: 'Tempo',
+        instrument: 'Instrument',
+        classics: 'Classics',
+        share: 'Share',
+        ringtone: 'Ringtone',
+        clear: 'Clear all',
+        exit: 'Exit',
+      },
+      screen: (title, item, n, total) =>
+        `${title} menu: ${item} (${n} of ${total})`,
+      tempoScreen: (bpm) => `Tempo: ${bpm} bpm`,
+    },
     screen: (name, count, bpm) =>
       `Screen: ${name}, ${count} notes, tempo ${bpm}`,
     help: [
@@ -146,9 +165,10 @@ export const en: Messages = {
       'Long press on a note: dotted note (length × 1.5).',
       '`8` / `9`: current note shorter / longer.',
       '`*`: next octave, `#`: sharp.',
-      '`C`: delete the note, long press: clear all. ◀ ▶: move the cursor.',
-      'Big center key: play / stop.',
-      'On a computer keyboard: digits, `*`, `#`, `Backspace`, arrows and `Enter`. Holding a key down = long press.',
+      '`C`: delete the note, long press: clear all (can be undone). `‹` `›`: move the cursor.',
+      'Center key (Navi): Options menu (tempo, instrument, classics, sharing…). Long press: play / stop.',
+      'In the menu: `‹` `›` to choose, Navi to select, `C` to go back, or the number of the item.',
+      'On a computer keyboard: digits, `*`, `#`, `Backspace`, arrows, `Enter` (Navi), `Space` (play) and `Esc` (back). Holding a key down = long press.',
     ],
   },
   keys: {

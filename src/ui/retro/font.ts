@@ -84,6 +84,22 @@ const GLYPHS: Record<string, readonly number[]> = {
   '>': [0x08, 0x04, 0x02, 0x01, 0x02, 0x04, 0x08],
   '_': [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1f],
   '♪': [0x04, 0x06, 0x05, 0x04, 0x0c, 0x1c, 0x18],
+  '"': [0x0a, 0x0a, 0x00, 0x00, 0x00, 0x00, 0x00],
+  '‹': [0x00, 0x02, 0x04, 0x08, 0x04, 0x02, 0x00],
+  '›': [0x00, 0x08, 0x04, 0x02, 0x04, 0x08, 0x00],
+};
+
+/** Typographic characters drawn with a plain equivalent. */
+const SUBSTITUTES: Record<string, string> = {
+  '’': "'",
+  '‘': "'",
+  '“': '"',
+  '”': '"',
+  '«': '"',
+  '»': '"',
+  '–': '-',
+  '—': '-',
+  ᵉ: 'e',
 };
 
 export const GLYPH_HEIGHT = 7;
@@ -104,7 +120,9 @@ const cache = new Map<string, Glyph>();
 export function glyph(char: string): Glyph {
   let result = cache.get(char);
   if (!result) {
-    const base = char.normalize('NFD').replace(/\p{Diacritic}/gu, '');
+    const base = (SUBSTITUTES[char] ?? char)
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '');
     const rows = char === ' ' ? null : (GLYPHS[base] ?? GLYPHS['?']!);
     result = rows ? measure(rows) : { rows: [], left: 0, width: SPACE_WIDTH };
     cache.set(char, result);

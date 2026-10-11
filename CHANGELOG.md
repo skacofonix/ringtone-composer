@@ -6,6 +6,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Added
+
+- **Options menu on the 3310 screen**, as on the real phone: a short press on the Navi key opens it (Play, Tempo, Instrument, Classics, Share, Ringtone, Clear all, Exit), the scroll key moves, `C` goes back, digits jump to an item. Tempo uses the Nokia tempo table; the instrument list plays each instrument while scrolling.
+
+### Changed
+
+- A long press on the Navi key plays or stops the melody; Enter is the Navi key and Space plays on a computer keyboard.
+- "Clear all" no longer asks for confirmation: it can be undone.
+
 ## [1.0.0] - 2026-10-11
 
 First version of the rewrite, as an installable web app (the 2015 C# version lives at <https://github.com/skacofonix/RingtoneComposer>).

@@ -7,6 +7,7 @@
   import MoreMenu from './MoreMenu.svelte';
   import { isApplePlatform } from './platform';
   import ShareDialog from './ShareDialog.svelte';
+  import { dialogs } from './dialogs.svelte';
 
   interface Props {
     composition: Composition;
@@ -15,11 +16,6 @@
   let { composition }: Props = $props();
 
   const shareIcon = isApplePlatform() ? 'shareBox' : 'shareNodes';
-
-  let catalogOpen = $state(false);
-  let shareOpen = $state(false);
-  let exportOpen = $state(false);
-  let moreOpen = $state(false);
 
   const t = $derived(i18n.t.toolbar);
   const empty = $derived(composition.melody.notes.length === 0);
@@ -31,14 +27,14 @@
 </script>
 
 <nav class="bar">
-  <button type="button" onclick={() => open(() => (catalogOpen = true))}>
+  <button type="button" onclick={() => open(() => (dialogs.catalog = true))}>
     <Icon name="music" />
     <span>{t.classics}</span>
   </button>
   <button
     type="button"
     disabled={empty}
-    onclick={() => open(() => (shareOpen = true))}
+    onclick={() => open(() => (dialogs.share = true))}
   >
     <Icon name={shareIcon} />
     <span>{t.share}</span>
@@ -57,21 +53,21 @@
   <button
     type="button"
     disabled={empty}
-    onclick={() => open(() => (exportOpen = true))}
+    onclick={() => open(() => (dialogs.export = true))}
   >
     <Icon name="bell" />
     <span>{t.ringtone}</span>
   </button>
-  <button type="button" onclick={() => open(() => (moreOpen = true))}>
+  <button type="button" onclick={() => open(() => (dialogs.more = true))}>
     <Icon name="menu" />
     <span>{t.more}</span>
   </button>
 </nav>
 
-<CatalogDialog bind:open={catalogOpen} {composition} />
-<ShareDialog bind:open={shareOpen} {composition} />
-<ExportDialog bind:open={exportOpen} {composition} />
-<MoreMenu bind:open={moreOpen} {composition} />
+<CatalogDialog bind:open={dialogs.catalog} {composition} />
+<ShareDialog bind:open={dialogs.share} {composition} />
+<ExportDialog bind:open={dialogs.export} {composition} />
+<MoreMenu bind:open={dialogs.more} {composition} />
 
 <style>
   .bar {

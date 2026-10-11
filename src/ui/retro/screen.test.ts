@@ -9,6 +9,8 @@ import {
   LCD_HEIGHT,
   LCD_WIDTH,
   renderComposer,
+  renderList,
+  renderValue,
 } from './screen';
 
 /** ASCII view of a frame region, handy to debug: `#` = dark pixel. */
@@ -98,7 +100,7 @@ describe('composer screen', () => {
         playingIndex: -1,
         playing: false,
         cursorVisible: true,
-        labels: { play: 'Play', stop: 'Stop', untitled: 'Untitled' },
+        labels: { options: 'Options', stop: 'Stop', untitled: 'Untitled' },
       });
       expect(frame.some((p) => p === 1)).toBe(true);
     }
@@ -111,11 +113,65 @@ describe('composer screen', () => {
       playingIndex: 0,
       playing: true,
       cursorVisible: true,
-      labels: { play: 'Play', stop: 'Stop', untitled: 'Untitled' },
+      labels: { options: 'Options', stop: 'Stop', untitled: 'Untitled' },
     });
     const { tokens } = layoutScore(melody(1));
     const t = tokens[0]!;
     // The pixel just left of the note is dark (inverted background).
     expect(frame[11 * LCD_WIDTH + t.x - 1]).toBe(1);
+  });
+});
+
+describe('menu screens', () => {
+  const list = (index: number) =>
+    renderList({
+      title: 'Options',
+      items: ['Play', 'Tempo', 'Instrument', 'Classics', 'Exit'],
+      index,
+      softKey: 'Select',
+    });
+
+  /** True when the pixel just left of the item text is dark (reverse video). */
+  const isHighlighted = (frame: Uint8Array, line: number) =>
+    frame[(11 + line * 9) * LCD_WIDTH + 1] === 1;
+
+  it('highlights the selected item, kept on the middle line', () => {
+    expect(isHighlighted(list(0), 0)).toBe(true);
+    expect(isHighlighted(list(2), 1)).toBe(true);
+    expect(isHighlighted(list(2), 0)).toBe(false);
+  });
+
+  it('shows the last items at the end of the list', () => {
+    expect(isHighlighted(list(4), 2)).toBe(true);
+  });
+
+  it('draws the scroll thumb lower for a later item', () => {
+    const thumbTop = (frame: Uint8Array) => {
+      for (let y = 10; y < 40; y++) {
+        if (frame[y * LCD_WIDTH + LCD_WIDTH - 2]) return y;
+      }
+      return -1;
+    };
+    expect(thumbTop(list(4))).toBeGreaterThan(thumbTop(list(0)));
+  });
+
+  it('draws a value twice as large', () => {
+    const frame = renderValue({
+      title: 'Tempo',
+      value: '1',
+      caption: 'bpm',
+      softKey: 'OK',
+    });
+    expect(frame.some((p) => p === 1)).toBe(true);
+    // "1" at scale 2: its 3-pixel-wide base becomes 6 pixels wide.
+    const baseRow = 11 + 6 * 2;
+    const row = Array.from(
+      frame.slice(baseRow * LCD_WIDTH, (baseRow + 1) * LCD_WIDTH),
+    );
+    expect(row.filter((p) => p === 1).length).toBe(6);
+  });
+
+  it('draws typographic quotes with a plain apostrophe', () => {
+    expect(glyph('’')).toEqual(glyph("'"));
   });
 });

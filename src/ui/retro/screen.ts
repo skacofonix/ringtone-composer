@@ -40,15 +40,18 @@ export function drawText(
   y: number,
   text: string,
   on = 1,
+  scale = 1,
 ): number {
   for (const char of text) {
     const { rows, left, width } = glyph(char);
     rows.forEach((row, j) => {
       for (let i = 0; i < width; i++) {
-        if (row & (0x10 >> (left + i))) setPixel(frame, x + i, y + j, on);
+        if (row & (0x10 >> (left + i))) {
+          fillRect(frame, x + i * scale, y + j * scale, scale, scale, on);
+        }
       }
     });
-    x += advance(char);
+    x += advance(char) * scale;
   }
   return x;
 }
@@ -71,7 +74,7 @@ export interface ComposerScreen {
   /** Blink phase of the cursor. */
   readonly cursorVisible: boolean;
   /** Texts drawn on the screen, in the interface language. */
-  readonly labels: { play: string; stop: string; untitled: string };
+  readonly labels: { options: string; stop: string; untitled: string };
 }
 
 /* Layout, in pixels. */
@@ -167,8 +170,8 @@ export function renderComposer(screen: ComposerScreen): Frame {
     setPixel(frame, LCD_WIDTH - 1, SOFT_KEY_Y - 3);
   }
 
-  // Soft key label, centered at the bottom (the Navi key).
-  const label = playing ? labels.stop : labels.play;
+  // Soft key label, centered at the bottom (the Navi key opens Options).
+  const label = playing ? labels.stop : labels.options;
   drawText(
     frame,
     Math.round((LCD_WIDTH - textWidth(label)) / 2),
@@ -176,5 +179,107 @@ export function renderComposer(screen: ComposerScreen): Frame {
     label,
   );
 
+  return frame;
+}
+
+/* ---------- Menu screens ---------- */
+
+export interface ListScreen {
+  readonly title: string;
+  readonly items: readonly string[];
+  readonly index: number;
+  /** Label of the Navi key, at the bottom. */
+  readonly softKey: string;
+}
+
+export interface ValueScreen {
+  readonly title: string;
+  /** Drawn twice as large, centered. */
+  readonly value: string;
+  /** Small text under the value (a unit). */
+  readonly caption: string;
+  readonly softKey: string;
+}
+
+const LIST_LINES = 3;
+
+/** Title on the left, extra text (item number…) on the right, then a rule. */
+function drawHeader(frame: Frame, title: string, right = ''): void {
+  const rightWidth = textWidth(right);
+  if (right) drawText(frame, LCD_WIDTH - rightWidth, 0, right);
+  drawText(frame, 0, 0, fitText(title, LCD_WIDTH - rightWidth - 4));
+  fillRect(frame, 0, HEADER_LINE_Y, LCD_WIDTH, 1);
+}
+
+function drawSoftKey(frame: Frame, label: string): void {
+  const x = Math.round((LCD_WIDTH - textWidth(label)) / 2);
+  drawText(frame, x, SOFT_KEY_Y, label);
+}
+
+/**
+ * A Nokia menu list: the selected item in reverse video, its number at the
+ * top right, and a scroll bar on the right edge.
+ */
+export function renderList(screen: ListScreen): Frame {
+  const frame = createFrame();
+  const { title, items, index, softKey } = screen;
+  drawHeader(frame, title, `${index + 1}/${items.length}`);
+
+  // Keep the selection on the middle line when possible.
+  const first = Math.max(0, Math.min(index - 1, items.length - LIST_LINES));
+  const textWidthMax = LCD_WIDTH - 6;
+  items.slice(first, first + LIST_LINES).forEach((item, line) => {
+    const y = SCORE_TOP + line * LINE_HEIGHT;
+    const text = fitText(item, textWidthMax);
+    if (first + line === index) {
+      fillRect(frame, 0, y - 1, LCD_WIDTH - 3, GLYPH_HEIGHT + 2);
+      drawText(frame, 2, y, text, 0);
+    } else {
+      drawText(frame, 2, y, text);
+    }
+  });
+
+  // Scroll bar: a dotted track with a solid thumb.
+  const top = SCORE_TOP - 1;
+  const height = LIST_LINES * LINE_HEIGHT;
+  for (let y = top; y < top + height; y += 2) setPixel(frame, LCD_WIDTH - 1, y);
+  const thumb = Math.max(3, Math.round(height / items.length));
+  const thumbY =
+    top +
+    Math.round(((height - thumb) * index) / Math.max(1, items.length - 1));
+  fillRect(frame, LCD_WIDTH - 2, thumbY, 2, thumb);
+
+  drawSoftKey(frame, softKey);
+  return frame;
+}
+
+/** A value to adjust with the scroll key (the tempo), shown large. */
+export function renderValue(screen: ValueScreen): Frame {
+  const frame = createFrame();
+  drawHeader(frame, screen.title);
+
+  const scale = 2;
+  const valueWidth = textWidth(screen.value) * scale;
+  const y = SCORE_TOP;
+  drawText(
+    frame,
+    Math.round((LCD_WIDTH - valueWidth) / 2),
+    y,
+    screen.value,
+    1,
+    scale,
+  );
+  // Arrows on both sides: the scroll key changes the value.
+  drawText(frame, 4, y + 4, '‹');
+  drawText(frame, LCD_WIDTH - 4 - textWidth('›'), y + 4, '›');
+  const captionWidth = textWidth(screen.caption);
+  drawText(
+    frame,
+    Math.round((LCD_WIDTH - captionWidth) / 2),
+    y + GLYPH_HEIGHT * scale + 2,
+    screen.caption,
+  );
+
+  drawSoftKey(frame, screen.softKey);
   return frame;
 }

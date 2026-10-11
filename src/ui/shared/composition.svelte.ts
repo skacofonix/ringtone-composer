@@ -145,14 +145,17 @@ export class Composition {
     this.#player.stop();
   }
 
-  /** Plays a single note at the current tempo, e.g. on key press. */
-  preview(note: Note): void {
+  /**
+   * Plays a single note at the current tempo, e.g. on key press, with the
+   * current instrument or another one (to try it before choosing).
+   */
+  preview(note: Note, instrument: InstrumentId = this.instrument): void {
     if (note.kind !== 'tone') return;
     const seconds = durationMs(note, this.melody.bpm) / 1000;
     void this.#player.preview(
       frequency(note),
       Math.min(seconds, MAX_PREVIEW_SECONDS),
-      this.instrument,
+      instrument,
     );
   }
 }

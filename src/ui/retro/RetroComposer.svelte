@@ -1,11 +1,23 @@
 <script lang="ts">
-  import { noteBeforeCursor } from '../../core/editor';
+  import { INSTRUMENT_IDS } from '../../audio/instruments';
+  import { CLASSICS } from '../../catalog/classics';
+  import { clearNotes, noteBeforeCursor, setBpm } from '../../core/editor';
+  import { tone } from '../../core/melody';
   import { pressKey, type NokiaKey } from '../../core/nokia';
+  import { parseRtttl } from '../../core/rtttl';
   import { i18n } from '../../i18n/i18n.svelte';
   import type { Composition } from '../shared/composition.svelte';
+  import { dialogs } from '../shared/dialogs.svelte';
   import Lcd from './Lcd.svelte';
+  import {
+    menuPress,
+    openMenu,
+    type MenuAction,
+    type MenuKey,
+    type MenuState,
+  } from './menu';
   import { pressable } from './press';
-  import { renderComposer } from './screen';
+  import { renderComposer, renderList, renderValue } from './screen';
 
   interface Props {
     composition: Composition;
@@ -57,42 +69,102 @@
     '#',
   ]);
 
+  /** Played to try an instrument while scrolling through the list. */
+  const DEMO_NOTE = tone('c', 5, 4);
+
   const BLINK_MS = 500;
 
   let cursorVisible = $state(true);
+
+  /** The Options menu on the LCD; `null` shows the composer screen. */
+  let menu = $state<MenuState | null>(null);
 
   $effect(() => {
     const id = setInterval(() => (cursorVisible = !cursorVisible), BLINK_MS);
     return () => clearInterval(id);
   });
 
-  const frame = $derived(
-    renderComposer({
+  const menuContext = $derived({
+    bpm: composition.melody.bpm,
+    instrument: composition.instrument,
+    hasNotes: composition.melody.notes.length > 0,
+  });
+
+  /** Texts of the current menu screen, for the LCD and screen readers. */
+  const menuView = $derived.by(() => {
+    if (!menu) return null;
+    const m = t.menu;
+    switch (menu.screen) {
+      case 'options':
+        return {
+          kind: 'list' as const,
+          title: m.options,
+          items: menu.items.map((id) => m.items[id]),
+          index: menu.index,
+        };
+      case 'instrument':
+        return {
+          kind: 'list' as const,
+          title: m.items.instrument,
+          items: INSTRUMENT_IDS.map((id) => i18n.t.instruments[id]),
+          index: menu.index,
+        };
+      case 'classics':
+        return {
+          kind: 'list' as const,
+          title: m.items.classics,
+          items: CLASSICS.map((entry) => i18n.pick(entry.title)),
+          index: menu.index,
+        };
+      case 'tempo':
+        return { kind: 'tempo' as const, title: m.items.tempo, bpm: menu.bpm };
+    }
+  });
+
+  const frame = $derived.by(() => {
+    if (menuView?.kind === 'tempo') {
+      return renderValue({
+        title: menuView.title,
+        value: String(menuView.bpm),
+        caption: t.menu.bpm,
+        softKey: t.menu.ok,
+      });
+    }
+    if (menuView) return renderList({ ...menuView, softKey: t.menu.choose });
+    return renderComposer({
       melody: composition.melody,
       cursor: composition.editor.cursor,
       playingIndex: composition.playingIndex,
       playing: composition.playing,
       cursorVisible,
       labels: {
-        play: i18n.t.common.play,
+        options: t.menu.options,
         stop: i18n.t.common.stop,
         untitled: i18n.t.common.untitled,
       },
-    }),
-  );
+    });
+  });
 
-  const screenLabel = $derived(
-    t.screen(
+  const screenLabel = $derived.by(() => {
+    if (menuView?.kind === 'tempo') return t.menu.tempoScreen(menuView.bpm);
+    if (menuView) {
+      return t.menu.screen(
+        menuView.title,
+        menuView.items[menuView.index] ?? '',
+        menuView.index + 1,
+        menuView.items.length,
+      );
+    }
+    return t.screen(
       composition.melody.name,
       composition.melody.notes.length,
       composition.melody.bpm,
-    ),
-  );
+    );
+  });
 
   function press(key: NokiaKey, long: boolean) {
-    if (key === 'clear' && long && !confirm(i18n.t.common.clearAllConfirm)) {
-      return;
-    }
+    if (menu) return pressInMenu(key);
+    // Long press on C clears everything: no confirmation, it can be undone.
     composition.edit((s) => pressKey(s, key, long));
     cursorVisible = true;
     if (PREVIEW_KEYS.has(key)) {
@@ -101,41 +173,117 @@
     }
   }
 
-  // --- Computer keyboard: digits, * and #, Backspace, arrows, Enter. ---
-  // Holding a key down acts as a long press, using the keyboard auto-repeat.
+  /** In the menu: scroll key moves, C goes back, digits jump to an item. */
+  function pressInMenu(key: NokiaKey) {
+    if (key === 'left') menuKey('up');
+    else if (key === 'right') menuKey('down');
+    else if (key === 'clear') menuKey('back');
+    else if (/^[1-9]$/.test(key)) menuKey(Number(key));
+  }
 
-  const CODES: Record<string, NokiaKey> = {
+  /** Navi key: opens Options (long press: play / stop); selects in the menu. */
+  function navi(long: boolean) {
+    if (composition.playing) {
+      composition.stop();
+    } else if (menu) {
+      menuKey('select');
+    } else if (long) {
+      composition.togglePlay();
+    } else {
+      menu = openMenu(menuContext);
+    }
+  }
+
+  function menuKey(key: MenuKey) {
+    if (!menu) return;
+    const result = menuPress(menu, key, menuContext);
+    menu = result.state;
+    if (result.action) run(result.action);
+  }
+
+  function run(action: MenuAction) {
+    switch (action.type) {
+      case 'play':
+        composition.togglePlay();
+        break;
+      case 'setBpm':
+        composition.edit((s) => setBpm(s, action.bpm));
+        break;
+      case 'setInstrument':
+        composition.setInstrument(action.instrument);
+        composition.preview(DEMO_NOTE);
+        break;
+      case 'previewInstrument':
+        composition.preview(DEMO_NOTE, action.instrument);
+        break;
+      case 'loadClassic': {
+        const entry = CLASSICS.find((c) => c.id === action.id);
+        if (entry) composition.load(parseRtttl(entry.rtttl));
+        break;
+      }
+      case 'share':
+        dialogs.share = true;
+        break;
+      case 'ringtone':
+        dialogs.export = true;
+        break;
+      case 'clearAll':
+        composition.edit(clearNotes);
+        break;
+    }
+  }
+
+  // --- Computer keyboard: digits, * and #, Backspace, arrows, Enter (Navi),
+  // Space (play), Escape (back). Holding a key down acts as a long press,
+  // using the keyboard auto-repeat.
+
+  type Key = NokiaKey | 'navi';
+
+  const CODES: Record<string, Key> = {
     Backspace: 'clear',
     Delete: 'clear',
+    Escape: 'clear',
     ArrowLeft: 'left',
     ArrowUp: 'left',
     ArrowRight: 'right',
     ArrowDown: 'right',
     NumpadMultiply: '*',
+    Enter: 'navi',
+    NumpadEnter: 'navi',
   };
 
-  function keyOf(event: KeyboardEvent): NokiaKey | 'play' | null {
+  function keyOf(event: KeyboardEvent): Key | 'play' | null {
     if (event.key === '*' || event.key === '#') return event.key;
+    if (event.key === ' ') return 'play';
     // `code` ignores the layout: digits work on AZERTY without Shift.
     const digit = /^(?:Digit|Numpad)(\d)$/.exec(event.code)?.[1];
     if (digit) return digit as NokiaKey;
-    if (event.key === 'Enter') return 'play';
     return CODES[event.code] ?? null;
   }
 
-  function isTyping(event: KeyboardEvent): boolean {
+  /** Keys that belong to the focused element rather than to the phone. */
+  function belongsToFocus(event: KeyboardEvent, key: Key | 'play'): boolean {
     const target = event.target as HTMLElement | null;
-    return !!target?.closest('input, textarea, select, [contenteditable]');
+    if (target?.closest('input, textarea, select, [contenteditable]')) {
+      return true;
+    }
+    // Enter and Space activate a focused button (keyboard navigation).
+    return (key === 'navi' || key === 'play') && !!target?.closest('button');
   }
 
-  let held: { key: NokiaKey; long: boolean } | null = null;
+  function pressAny(key: Key, long: boolean) {
+    if (key === 'navi') navi(long);
+    else press(key, long);
+  }
+
+  let held: { key: Key; long: boolean } | null = null;
 
   function onkeydown(event: KeyboardEvent) {
-    if (isTyping(event) || event.metaKey || (event.ctrlKey && !event.altKey)) {
-      return;
-    }
+    // Keys typed while a dialog is open belong to the dialog.
+    if (document.querySelector('dialog[open]')) return;
+    if (event.metaKey || (event.ctrlKey && !event.altKey)) return;
     const key = keyOf(event);
-    if (!key) return;
+    if (!key || belongsToFocus(event, key)) return;
     event.preventDefault();
 
     if (key === 'play') {
@@ -146,14 +294,14 @@
       held = { key, long: false };
     } else if (held?.key === key && !held.long) {
       held.long = true;
-      press(key, true);
+      pressAny(key, true);
     }
   }
 
   function onkeyup(event: KeyboardEvent) {
     const key = keyOf(event);
     if (held && held.key === key) {
-      if (!held.long) press(held.key, false);
+      if (!held.long) pressAny(held.key, false);
       held = null;
     }
   }
@@ -186,8 +334,10 @@
             class="navi"
             aria-label={composition.playing
               ? i18n.t.common.stop
-              : i18n.t.common.play}
-            onclick={() => composition.togglePlay()}
+              : menu
+                ? t.menu.choose
+                : t.naviKey}
+            {@attach pressable((long) => navi(long))}
           ></button>
           <div class="scroll-key" role="group" aria-label={t.moveCursor}>
             <button

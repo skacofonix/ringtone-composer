@@ -56,12 +56,18 @@ L'application lit et écrit ces séquences (menu **Plus → Touches Nokia**, cod
 - Le compositeur affiche la partition sur quelques lignes, avec un curseur clignotant.
 - Rendu dans l'application : un `<canvas>` qui peint une image 84 × 48 calculée par `src/ui/retro/screen.ts`, avec une police bitmap 5×7 maison (`src/ui/retro/font.ts`).
 
-## Menu du compositeur (fidélité optionnelle)
+## Menu du compositeur (« Options »)
 
-- **Jouer** ;
-- **Tempo** : valeurs prédéfinies ;
-- **Envoyer** : chez nous, partage par lien ;
-- **Effacer**, **Quitter**.
+Sur le téléphone, la touche Navi affiche « Options » en bas de l'écran du Compositeur et ouvre un menu dessiné sur le LCD : Jouer, Tempo, Envoyer, Effacer, Quitter…
+
+Dans l'application (`src/ui/retro/menu.ts`, un automate pur, dessiné par `screen.ts`) :
+
+- un **appui court** sur la Navi ouvre Options ; un **appui long** joue ou arrête (raccourci, absent de l'original) ;
+- la touche de défilement parcourt la liste (qui boucle), la Navi valide, `C` revient en arrière, et un chiffre saute à l'élément de ce numéro ;
+- éléments : Jouer, Tempo, Instrument, Classiques, Partager, Sonnerie, Tout effacer, Quitter. Jouer, Partager, Sonnerie et Tout effacer sont masqués tant que la mélodie est vide ;
+- **Tempo** parcourt la table des tempos de la norme Nokia Smart Messaging (25, 28, 31… 900 BPM), en partant de la valeur la plus proche ;
+- **Instrument** fait entendre une note de chaque instrument pendant le défilement ;
+- les listes affichent le numéro de l'élément en haut à droite (`2/8`), l'élément choisi en vidéo inverse et une barre de défilement, comme sur le téléphone.
 
 ## Choix d'implémentation (`src/core/nokia.ts`)
 
@@ -71,5 +77,5 @@ Ces choix sont à corriger si un vrai 3310 dit autre chose :
 - Une nouvelle note reprend la durée de la note précédente et l'octave du dernier `Tone`. La toute première note part de `NOKIA_START` (durée 8, octave Nokia 1).
 - `#` sur `e` ou `b`, ou `*`/`#` sur un silence : sans effet.
 - `*` après l'octave 3 revient à 1. Une octave importée hors plage (RTTTL 7) revient aussi à 1.
-- Appui long sur `C` : efface tout, après confirmation (il n'y a pas d'annulation).
+- Appui long sur `C` : efface tout, sans confirmation (c'est annulable).
 - Clavier d'ordinateur : maintenir une touche enfoncée équivaut à un appui long, grâce à la répétition automatique du clavier.

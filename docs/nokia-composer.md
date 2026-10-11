@@ -56,12 +56,18 @@ The app reads and writes these sequences (menu **More → Nokia keys**, code in 
 - The composer shows the score on a few lines, with a blinking cursor.
 - Rendering in the app: a `<canvas>` paints an 84 × 48 image computed by `src/ui/retro/screen.ts`, with a home-made 5×7 bitmap font (`src/ui/retro/font.ts`).
 
-## Composer menu (optional fidelity)
+## Composer menu ("Options")
 
-- **Play**;
-- **Tempo**: predefined values;
-- **Send**: in our app, share by link;
-- **Clear**, **Exit**.
+On the phone, the Navi key shows "Options" at the bottom of the Composer screen and opens a menu drawn on the LCD: Play, Tempo, Send, Clear, Exit…
+
+In the app (`src/ui/retro/menu.ts`, a pure state machine, drawn by `screen.ts`):
+
+- a **short press** on the Navi key opens Options; a **long press** plays or stops (shortcut, not on the original);
+- the scroll key moves in the list (it wraps around), the Navi key selects, `C` goes back, and a digit jumps to the item with that number;
+- items: Play, Tempo, Instrument, Classics, Share, Ringtone, Clear all, Exit. Play, Share, Ringtone and Clear all are hidden while the melody is empty;
+- **Tempo** steps through the tempo table of the Nokia Smart Messaging specification (25, 28, 31… 900 BPM), starting from the nearest value;
+- **Instrument** plays a note of each instrument while scrolling;
+- list screens show the item number at the top right (`2/8`), the selected item in reverse video and a scroll bar, as on the phone.
 
 ## Implementation choices (`src/core/nokia.ts`)
 
@@ -71,5 +77,5 @@ To be corrected if a real 3310 says otherwise:
 - A new note takes the duration of the previous note and the octave of the last `Tone`. The very first note starts from `NOKIA_START` (duration 8, Nokia octave 1).
 - `#` on `e` or `b`, or `*`/`#` on a rest: no effect.
 - `*` after octave 3 goes back to 1. An imported octave out of range (RTTTL 7) also goes back to 1.
-- Long press on `C`: clears everything, after confirmation (there is no undo).
+- Long press on `C`: clears everything, without confirmation (it can be undone).
 - Computer keyboard: holding a key down acts as a long press, thanks to the keyboard auto-repeat.

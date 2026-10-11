@@ -30,10 +30,9 @@
   }
 
   function clearAll() {
-    if (confirm(i18n.t.common.clearAllConfirm)) {
-      composition.edit(clearNotes);
-      open = false;
-    }
+    // No confirmation: it can be undone.
+    composition.edit(clearNotes);
+    open = false;
   }
 </script>
 
