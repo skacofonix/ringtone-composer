@@ -293,7 +293,7 @@
   .frame {
     width: 100%;
     padding: 2.6cqw 2.6cqw 0;
-    border-radius: 22cqw 22cqw 36cqw 36cqw / 16cqw 16cqw 24cqw 24cqw;
+    border-radius: 22cqw 22cqw 40cqw 40cqw / 16cqw 16cqw 30cqw 30cqw;
     background: linear-gradient(var(--silver), var(--silver-dark));
     box-shadow:
       inset 0 0.5cqw 0.8cqw rgb(255 255 255 / 0.7),
@@ -315,22 +315,30 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  /*
+   * Under the screen, as on the real 3310: a wide flat Navi key straddling
+   * the bottom of the screen surround, then the C key (left) and the scroll
+   * key (right) tilted along the "V" of the silver frame, hanging over the
+   * shell. Positions measured on a photo, in cqw (percent of phone width).
+   * The frame starts 8.6cqw from the phone's left edge (body + frame padding).
+   */
   .controls {
-    display: grid;
-    grid-template-columns: 1fr 2.2fr 1fr;
-    align-items: start;
-    gap: 1cqw;
-    padding: 2.5cqw 0 3cqw;
+    position: relative;
+    height: 22cqw;
   }
 
   .navi {
-    position: relative;
-    height: 10cqw;
+    position: absolute;
+    left: 50%;
+    top: -4cqw;
+    width: 34cqw;
+    height: 8.5cqw;
     border-radius: 50%;
-    background: linear-gradient(#f4f6f8, #c4cad3);
+    transform: translateX(-50%);
+    background: linear-gradient(#f6f8fa, #c9cfd7);
     box-shadow:
       inset 0 -0.8cqw 0 rgb(0 0 0 / 0.12),
-      0 0.6cqw 1cqw rgb(0 0 0 / 0.3);
+      0 0.6cqw 1.2cqw rgb(0 0 0 / 0.35);
   }
 
   /* The thin blue line of the 3310 Navi key. */
@@ -339,37 +347,45 @@
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 30%;
+    width: 36%;
     height: 1cqw;
     border-radius: 1cqw;
     background: var(--navi-line);
     transform: translate(-50%, -50%);
   }
 
-  /* C and scroll keys: tilted, hanging below the silver frame. */
   .c-key,
   .scroll-key {
-    height: 11cqw;
-    margin-top: 5cqw;
-    background: linear-gradient(#eef0f3, #b9c0ca);
+    position: absolute;
+    background: linear-gradient(#eef0f3, #b5bcc7);
     color: var(--key-ink);
     box-shadow:
       inset 0 -0.8cqw 0 rgb(0 0 0 / 0.12),
-      0 0.8cqw 1.4cqw rgb(0 0 0 / 0.35);
+      0 0.8cqw 1.4cqw rgb(0 0 0 / 0.4);
   }
 
+  /* Left arm of the V: tilted down towards the center. */
   .c-key {
+    left: 2cqw;
+    top: 7cqw;
+    width: 19cqw;
+    height: 12cqw;
+    border-radius: 3.5cqw 5cqw 3.5cqw 5cqw;
+    transform: rotate(24deg);
     font-size: 5cqw;
     font-weight: 700;
-    border-radius: 5cqw 3cqw 5cqw 6cqw;
-    transform: rotate(-22deg);
   }
 
+  /* Right arm of the V: wider, tilted up towards the edge. */
   .scroll-key {
+    right: -2cqw;
+    top: 6cqw;
     display: flex;
+    width: 29cqw;
+    height: 12.5cqw;
     overflow: hidden;
-    border-radius: 3cqw 5cqw 6cqw 5cqw;
-    transform: rotate(22deg);
+    border-radius: 5cqw 3.5cqw 5cqw 3.5cqw;
+    transform: rotate(-24deg);
   }
 
   .scroll-key button {
@@ -380,6 +396,10 @@
     font-size: 6cqw;
     font-weight: 700;
     line-height: 1;
+  }
+
+  .scroll-key button + button {
+    border-left: 0.3cqw solid rgb(0 0 0 / 0.12);
   }
 
   .navi:active,
@@ -395,7 +415,7 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 6.5cqw 4.5cqw;
     width: 92%;
-    margin-top: 12cqw;
+    margin-top: 10cqw;
   }
 
   .key {
