@@ -6,10 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-11
+
 ### Added
 
 - **Options menu on the 3310 screen**, as on the real phone: a short press on the Navi key opens it (Play, Tempo, Instrument, Classics, Share, Ringtone, Clear all, Exit), the scroll key moves, `C` goes back, digits jump to an item. Tempo uses the Nokia tempo table; the instrument list plays each instrument while scrolling.
-
 - **Vibration** on key presses of the 3310 and the piano, a little stronger for a long press, with an on / off switch in the More menu. Works on Android; Safari on iPhone does not support the Vibration API.
 
 ### Changed
@@ -43,5 +44,6 @@ First version of the rewrite, as an installable web app (the 2015 C# version liv
 - **Light and dark themes**, following the system by default.
 - Installable **PWA** that works offline, deployed on GitHub Pages.
 
-[Unreleased]: https://github.com/skacofonix/ringtone-composer/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/skacofonix/ringtone-composer/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/skacofonix/ringtone-composer/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/skacofonix/ringtone-composer/releases/tag/v1.0.0
