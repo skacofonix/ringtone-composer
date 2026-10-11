@@ -1,0 +1,25 @@
+name: Idea or feature request
+description: Suggest an improvement or a new feature.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What would you like to do?
+      description: Describe the need or the problem first, before a solution.
+      placeholder: I would like to hear my melody with a guitar sound…
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: How could it work?
+      description: Optional. A sketch, an example from another app, or how the real Nokia did it.
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Mode
+      options:
+        - Retro 3310
+        - Modern
+        - Both / not related to a mode
