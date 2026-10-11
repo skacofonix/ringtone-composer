@@ -4,6 +4,7 @@
   import { LOCALE_NAMES, LOCALES } from '../../i18n/locale';
   import type { Composition } from './composition.svelte';
   import Dialog from './Dialog.svelte';
+  import { haptics } from './haptics.svelte';
   import HelpDialog from './HelpDialog.svelte';
   import KeysDialog from './KeysDialog.svelte';
   import Icon, { type IconName } from './Icon.svelte';
@@ -59,6 +60,25 @@
   </nav>
 
   <div class="settings">
+    <div class="setting">
+      <span>
+        <Icon name="vibrate" size={20} />
+        <span class="label">
+          {t.haptics}
+          {#if !haptics.supported}<small>{t.hapticsUnavailable}</small>{/if}
+        </span>
+      </span>
+      <button
+        type="button"
+        role="switch"
+        class="switch"
+        aria-label={t.haptics}
+        aria-checked={haptics.supported && haptics.enabled}
+        disabled={!haptics.supported}
+        onclick={() => haptics.setEnabled(!haptics.enabled)}
+      ></button>
+    </div>
+
     <div class="setting">
       <span><Icon name="theme" size={20} />{t.theme}</span>
       <div class="segmented" role="group" aria-label={t.theme}>
@@ -162,6 +182,63 @@
 
   .setting :global(svg) {
     color: var(--accent);
+  }
+
+  .label {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .label small {
+    color: var(--muted);
+    font-size: 0.75rem;
+  }
+
+  /* On / off switch. */
+  .switch {
+    position: relative;
+    flex-shrink: 0;
+    width: 2.8rem;
+    height: 1.6rem;
+    padding: 0;
+    border: 0;
+    border-radius: 1rem;
+    background: var(--chip);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .switch::after {
+    content: '';
+    position: absolute;
+    top: 0.2rem;
+    left: 0.2rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 50%;
+    background: var(--surface);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+    transition: transform 0.15s;
+  }
+
+  .switch[aria-checked='true'] {
+    background: var(--accent);
+  }
+
+  .switch[aria-checked='true']::after {
+    transform: translateX(1.2rem);
+  }
+
+  .switch:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .switch,
+    .switch::after {
+      transition: none;
+    }
   }
 
   .about {

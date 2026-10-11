@@ -29,6 +29,8 @@ export const en: Messages = {
     help: 'Help',
     clearAll: 'Clear all',
     language: 'Language',
+    haptics: 'Vibration',
+    hapticsUnavailable: 'Not available on this device',
     theme: 'Theme',
     version: (version) => `Version ${version}`,
     releases: 'What’s new',

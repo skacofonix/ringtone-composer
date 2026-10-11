@@ -10,6 +10,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 - **Options menu on the 3310 screen**, as on the real phone: a short press on the Navi key opens it (Play, Tempo, Instrument, Classics, Share, Ringtone, Clear all, Exit), the scroll key moves, `C` goes back, digits jump to an item. Tempo uses the Nokia tempo table; the instrument list plays each instrument while scrolling.
 
+- **Vibration** on key presses of the 3310 and the piano, a little stronger for a long press, with an on / off switch in the More menu. Works on Android; Safari on iPhone does not support the Vibration API.
+
 ### Changed
 
 - In the Options menu lists, the scroll key works like the 3310 rocker: `›` goes up, `‹` goes down (on the Tempo screen, `›` is faster).

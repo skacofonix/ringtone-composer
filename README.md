@@ -30,6 +30,7 @@ An installable web app (PWA) to compose, play, share and export ringtones in the
 - Audio export to use as a ringtone (Android and iPhone), and MIDI export
 - Works offline
 - Light and dark themes (follows the system by default)
+- Vibration on key presses (Android), can be turned off
 - In English and French (browser language by default, can be changed)
 
 ## Use it as a ringtone

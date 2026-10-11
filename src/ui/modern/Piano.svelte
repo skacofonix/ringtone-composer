@@ -1,6 +1,7 @@
 <script lang="ts">
   import { PITCH_CLASSES, type PitchClass } from '../../core/melody';
   import { i18n } from '../../i18n/i18n.svelte';
+  import { haptics } from '../shared/haptics.svelte';
 
   interface Props {
     /** Octave of the leftmost C. */
@@ -40,6 +41,7 @@
       type="button"
       class="white"
       aria-label={`${key.pitch}${key.octave}`}
+      onpointerdown={() => haptics.play('tap')}
       onclick={() => onpress(key.pitch, key.octave)}
     >
       <span class="label">
@@ -56,6 +58,7 @@
       aria-label={`${key.pitch}${key.octave}`}
       style:left="{key.whitesBefore * whiteWidth}%"
       style:width="{whiteWidth * 0.6}%"
+      onpointerdown={() => haptics.play('tap')}
       onclick={() => onpress(key.pitch, key.octave)}
     ></button>
   {/each}

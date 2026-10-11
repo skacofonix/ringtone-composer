@@ -31,6 +31,8 @@ export const fr = {
     help: 'Aide',
     clearAll: 'Tout effacer',
     language: 'Langue',
+    haptics: 'Vibrations',
+    hapticsUnavailable: 'Non disponible sur cet appareil',
     theme: 'Thème',
     version: (version: string) => `Version ${version}`,
     releases: 'Nouveautés',

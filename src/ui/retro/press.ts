@@ -1,8 +1,10 @@
 /**
  * Svelte attachment for phone keys: distinguishes a short press from a long
- * press (held for LONG_PRESS_MS), like on the 3310.
+ * press (held for LONG_PRESS_MS), like on the 3310. Each press vibrates
+ * (when enabled), a little more for a long press.
  */
 import type { Attachment } from 'svelte/attachments';
+import { haptics } from '../shared/haptics.svelte';
 
 export const LONG_PRESS_MS = 500;
 
@@ -20,9 +22,11 @@ export function pressable(
     const down = (event: PointerEvent) => {
       if (event.button !== 0) return;
       cancel();
+      // Felt as soon as the finger lands, like a physical key.
+      haptics.play('tap');
       timer = setTimeout(() => {
         timer = undefined;
-        navigator.vibrate?.(15);
+        haptics.play('long');
         onpress(true);
       }, LONG_PRESS_MS);
     };

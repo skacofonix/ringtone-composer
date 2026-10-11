@@ -72,7 +72,7 @@ docs/            # specifications (RTTTL, Nokia notation…), in English with Fr
 
 > The tree above reflects the current code; update it when the structure changes. The catalog only contains public-domain works: do not add film, TV or game themes that are still under copyright.
 >
-> `ui/retro/` also contains a 5×7 bitmap font (`font.ts`) and a pure renderer of the 84×48 screen (`screen.ts`, tested) that `Lcd.svelte` only paints. `ui/shared/storage.ts` saves the melody (as RTTTL), the mode, the instrument, the language and the theme in `localStorage`.
+> `ui/retro/` also contains a 5×7 bitmap font (`font.ts`) and a pure renderer of the 84×48 screen (`screen.ts`, tested) that `Lcd.svelte` only paints. `ui/shared/storage.ts` saves the melody (as RTTTL), the mode, the instrument, the language, the theme and the vibration setting in `localStorage`.
 >
 > A first version in C# (Xamarin, 2015) exists: <https://github.com/skacofonix/RingtoneComposer>. Its `RingtoneComposer.Core/Business/Converter/` folder is a good domain reference (RTTTL, Nokia notation, key sequences). The useful points are summarized in `docs/`.
 
@@ -120,6 +120,7 @@ The project follows [Semantic Versioning](https://semver.org/); the version in `
 - **iOS audio:** the `AudioContext` must be created or resumed (`resume()`) inside a user gesture (tap), otherwise there is no sound. The iPhone silent switch can mute web audio (`navigator.audioSession` is set to `playback` to avoid it).
 - **Setting a ringtone:** impossible from the web. The app exports a WAV file and guides the user (Android settings, GarageBand on iPhone). On iOS a ringtone lasts at most about 30 s.
 - **Web Audio envelopes:** always anchor each stage with an explicit `setValueAtTime`. A `setTargetAtTime` right after a `linearRampToValueAtTime` diverges on some engines (tested: the level blows up). See `audio/synth.ts`.
+- **Haptics:** `ui/shared/haptics.svelte.ts` wraps `navigator.vibrate` (Android only: Safari on iPhone has no Vibration API, so the setting shows as unavailable there). Vibrate on `pointerdown`, inside the user gesture.
 - **Testing audio:** `OfflineAudioContext` does not exist in Node, and headless Edge renders it poorly. To check a rendering, use `node-web-audio-api` in a temporary folder (outside the project dependencies) and import `src/audio/render.ts`.
 - **Polyphony:** out of scope for v1, RTTTL being monophonic by nature. Possible direction: several RTTTL voices played together (like the polyphonic ringtones of later Nokia phones), without breaking the mono model.
 
