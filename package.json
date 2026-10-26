@@ -51,6 +51,6 @@
   },
   "dependencies": {
     "@mediabunny/mp3-encoder": "1.60.0",
-    "mediabunny": "1.60.0"
+    "mediabunny": "1.62.1"
   }
 }
